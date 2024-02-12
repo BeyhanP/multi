@@ -147,7 +147,7 @@ Material:
     - _SpecSmooth: 1
     - _SpecularHighlights: 1
     - _SpecularMapType: 0
-    - _SpecularRoughness: 0.34
+    - _SpecularRoughness: 0.461
     - _SpecularToonSize: 0.25
     - _SpecularToonSmoothness: 0.05
     - _SpecularType: 0
@@ -173,7 +173,7 @@ Material:
     - _UseSpecular: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.14551443, g: 0.1940454, b: 0.2830189, a: 1}
+    - _BaseColor: {r: 0.26090246, g: 0.3051341, b: 0.38679248, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _HColor: {r: 1, g: 1, b: 1, a: 1}
