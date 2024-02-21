@@ -104,6 +104,9 @@ public class ETFXSceneManager : MonoBehaviour
 	public void LoadSceneWater()  {
 		SceneManager.LoadScene ("etfx_water");
 	}
+	public void LoadSceneFruit()  {
+		SceneManager.LoadScene ("etfx_fruit");
+	}
 	
 	void Update ()
 	 {

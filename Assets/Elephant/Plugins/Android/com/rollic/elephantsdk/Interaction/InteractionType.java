@@ -1,0 +1,12 @@
+package com.rollic.elephantsdk.Interaction;
+
+public enum InteractionType {
+    TOS_ACCEPT,
+    GDPR_AD_CONSENT_AGREE,
+    GDPR_AD_CONSENT_DECLINE,
+    PERSONALIZED_ADS_AGREE,
+    PERSONALIZED_ADS_DECLINE,
+    CALL_DATA_REQUEST,
+    DELETE_REQUEST_CANCEL,
+    RETRY_CONNECTION
+}

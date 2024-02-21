@@ -1,0 +1,5 @@
+<dependencies>
+    <androidPackages>
+        <androidPackage spec="com.squareup.picasso:picasso:2.71828"/>
+    </androidPackages>
+</dependencies>
