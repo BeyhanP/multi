@@ -267,7 +267,7 @@ public class SingleDoorScript : MonoBehaviour
                 }
             }
             */
-            other.GetComponent<BulletScript>().BulletDeActivate(true);
+            other.GetComponent<BulletScript>().BulletDeActivate(true,true,GetComponent<Ricochetable>());
             if (_doorType != DoorType.SkillDoor)
             {
                 if (!locked)

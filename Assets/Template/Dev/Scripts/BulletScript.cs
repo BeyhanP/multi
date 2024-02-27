@@ -27,7 +27,7 @@ public class BulletScript : MonoBehaviour
     bool gotCrit;
 
     public List<int> skillsInside;
-    List<GameObject> richocetEncounter;
+    List<Ricochetable> richocetEncounter = new List<Ricochetable>();
 
     public List<Skills> _skillsGot;
 
@@ -100,7 +100,7 @@ public class BulletScript : MonoBehaviour
             transform.localScale *= 1.5f;
         }
     }
-    public void BulletDeActivate(bool showPower, bool particledHit = false)
+    public void BulletDeActivate(bool showPower, bool particledHit = false,Ricochetable _ricochetObject =null)
     {
         if (particledHit)
         {
@@ -181,7 +181,32 @@ public class BulletScript : MonoBehaviour
             }
             else
             {
+                if (!richocetEncounter.Contains(_ricochetObject))
+                {
+                    GameObject ricohetTo = null;
+                    float smallestDifference = Mathf.Infinity;
+                    foreach(Ricochetable rr in FindObjectsOfType<Ricochetable>())
+                    {
+                        Debug.Log(_ricochetObject.gameObject);
+                        if (rr.gameObject != _ricochetObject.gameObject)
+                        {
+                            if (Vector3.Distance(rr.transform.position, _ricochetObject.transform.position) < smallestDifference)
+                            {
+                                smallestDifference = Vector3.Distance(rr.transform.position, _ricochetObject.transform.position);
+                                ricohetTo = rr.gameObject;
+                            }
+                        }
+                    }
+                    Vector3 vectoralDifference = ricohetTo.transform.position - transform.position;
+                    vectoralDifference.y = 0;
+                    vectoralDifference.Normalize();
+                    GetComponent<Rigidbody>().AddForce(vectoralDifference*NewShootingScript.instance.shootForce);
+                    richocetEncounter.Add(_ricochetObject);
+                }
+                else
+                {
 
+                }
             }
         }
     }
@@ -201,13 +226,16 @@ public class BulletScript : MonoBehaviour
     }
     private void Update()
     {
-        if (transform.position.z > zMax)
+        if (!_skillsGot.Contains(Skills.Richochet))
         {
-            if (GetComponent<Collider>())
+            if (transform.position.z > zMax)
             {
-                GetComponent<Collider>().enabled = false;
-                transform.DOScale(Vector3.zero, .2f);
-                GetComponent<TrailRenderer>().enabled = false;
+                if (GetComponent<Collider>())
+                {
+                    GetComponent<Collider>().enabled = false;
+                    transform.DOScale(Vector3.zero, .2f);
+                    GetComponent<TrailRenderer>().enabled = false;
+                }
             }
         }
     }

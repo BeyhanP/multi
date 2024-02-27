@@ -32,7 +32,7 @@ public class NewShootingScript : MonoBehaviour
 
     [Header("ShootPart")]
     [SerializeField] float currentRange;
-    [SerializeField] float shootForce;
+    public float shootForce;
     [SerializeField] Transform shootPosition;
     private bool spreadShotUnlocked;
     bool canShoot;

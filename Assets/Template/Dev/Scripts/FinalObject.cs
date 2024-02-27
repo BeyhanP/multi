@@ -42,7 +42,7 @@ public class FinalObject : MonoBehaviour
         if (other.CompareTag("Bullet"))
         {
             Taptic.Light();
-            other.GetComponent<BulletScript>().BulletDeActivate(true, true);
+            other.GetComponent<BulletScript>().BulletDeActivate(true, true, GetComponent<Ricochetable>());
             power -= other.GetComponent<BulletScript>().bulletPower;
             powerText.text = power.ToString("0");
             if (!shaking)

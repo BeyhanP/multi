@@ -23,8 +23,8 @@ public class SinglePlatform : MonoBehaviour
         float difference = currentPlatformScale.x / defaultScalePlatform.x;
         Vector2 tilingPlatform = defaultTilingPlatform * difference;
         Vector2 tilingConveyor = defaultTilingConveyor * difference;
-        platformObject.GetComponent<Renderer>().materials[0].SetTextureScale("_MainTex", tilingPlatform);
-        platformObject.GetComponent<Renderer>().materials[1].SetTextureScale("_MainTex", tilingPlatform);
+        platformObject.GetComponent<Renderer>().materials[0].SetTextureScale("_MainTex", new Vector2(tilingPlatform.x, defaultTilingPlatform.y));
+        platformObject.GetComponent<Renderer>().materials[1].SetTextureScale("_MainTex", new Vector2(tilingPlatform.x, defaultTilingPlatform.y));
         conveyorObject.GetComponent<Renderer>().materials[0].SetTextureScale("_MainTex", tilingConveyor);
         if (RemoteConfig.GetInstance().GetFloat("WhiteGround",1) == 0)
         {
