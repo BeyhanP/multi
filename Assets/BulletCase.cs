@@ -65,6 +65,16 @@ public class BulletCase : MonoBehaviour
             Debug.Log("AddedBullet");
             fullData[emptyPosition] = 1;
         }
+        else
+        {
+            for(int i = 0; i < bulletsInside.Count; i++)
+            {
+                if (bulletsInside[i].GetComponent<ShowBullet>().skillBullet)
+                {
+
+                }
+            }
+        }
     }
     public void AddPowerBullet(float power)
     {

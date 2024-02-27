@@ -84,8 +84,9 @@ public class CollectableMain : MonoBehaviour
     public void GetHit(float _addAmount)
     {
         List<GameObject> _sendPieceLister = new List<GameObject>();
-        _collectableLayersInside[currentLayerNumber]._layerPower-= _addAmount;
+        _collectableLayersInside[currentLayerNumber]._layerPower -= _addAmount;
         _collectableLayersInside[currentLayerNumber]._currentThrowAmount += _collectableLayersInside[currentLayerNumber]._throwAmountPerPower * _addAmount;
+        int startLayerNumberer = currentLayerNumber;
         if (_collectableLayersInside[currentLayerNumber]._layerPower <= 0)
         {
             for (int i = 0; i < _collectableLayersInside[currentLayerNumber]._cubesInside.Count; i++)
@@ -123,11 +124,11 @@ public class CollectableMain : MonoBehaviour
             if (!nonking)
             {
                 StartCoroutine(Noink());
-                _powerText.transform.DOPunchScale(Vector3.one*rotShakeAmount,.25f,10,10);
+                _powerText.transform.DOPunchScale(Vector3.one * rotShakeAmount, .25f, 10, 10);
                 nonking = true;
             }
         }
-        StartCoroutine(SendPieces(_sendPieceLister)); 
+        StartCoroutine(SendPieces(_sendPieceLister, _collectableLayersInside[startLayerNumberer]._singlePiecePowerAmount)); 
         SetPowerTexter();
     }
     private IEnumerator Noink()
@@ -145,7 +146,7 @@ public class CollectableMain : MonoBehaviour
         }
         nonking = false;
     }
-    private IEnumerator SendPieces(List<GameObject> _piecesToSend)
+    private IEnumerator SendPieces(List<GameObject> _piecesToSend,float piecePowerer)
     {
         yield return new WaitForSeconds(.8f);
         for(int i = 0; i < _piecesToSend.Count; i++)
@@ -159,6 +160,7 @@ public class CollectableMain : MonoBehaviour
             _jumpPosition.z = _piecesToSend[i].transform.position.z;
             _piecesToSend[i].transform.DOJump(_jumpPosition, 1, 1, .3f).OnComplete(delegate {
                 _singlePiece.AddComponent<SingleCollectablePiecer>().move = true;
+                _singlePiece.GetComponent<SingleCollectablePiecer>()._power = piecePowerer;
             });
             yield return null;
         }
@@ -168,7 +170,7 @@ public class CollectableMain : MonoBehaviour
         if (other.CompareTag("Bullet"))
         {
             GetHit(other.GetComponent<BulletScript>().bulletPower);
-            other.GetComponent<BulletScript>().BulletDeActivate(true);
+            other.GetComponent<BulletScript>().BulletDeActivate(true,true);
         }
     }
 }

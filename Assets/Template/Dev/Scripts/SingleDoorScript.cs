@@ -39,11 +39,23 @@ public class SingleDoorScript : MonoBehaviour
     [SerializeField]private List<GameObject> lockObjects = new List<GameObject>();
     float objectThrowAmount;
     float currentObjectNumber;
-
-
+    [Header ("Skill Doors")]
+    [SerializeField] List<TextMeshPro> _levelTexts = new List<TextMeshPro>();
+    [SerializeField] SkinnedMeshRenderer _barRenderer;
+    [SerializeField]List<int> powerNeededForNewLevelSkill = new List<int>();
     public SingleDoorScript otherDoor;
+    [SerializeField] int startLevel;
+    float currentPower;
+    bool canStamina;
+    [SerializeField]float staminaSpeed;
+    int currentLevel;
     private void Awake()
     {
+        if(_doorType == DoorType.SkillDoor)
+        {
+            currentPower = powerNeededForNewLevelSkill[startLevel];
+            GetHit(0);
+        }
         foreach(SingleDoorScript sds in FindObjectsOfType<SingleDoorScript>())
         {
             if (sds.transform.position.z == transform.position.z)
@@ -211,6 +223,31 @@ public class SingleDoorScript : MonoBehaviour
         amountText.transform.DORotate(new Vector3(0, 0, 0), .1f);
         shaking = false;
     }
+    public void GetHit(float hitPower)
+    {
+        currentPower+=hitPower;
+        int smallestLevel = 0;
+        for (int i = 0; i < powerNeededForNewLevelSkill.Count; i++)
+        {
+            if (currentPower >= powerNeededForNewLevelSkill[i])
+            {
+                smallestLevel = i;
+            }
+        }
+        _levelTexts[0].text = (smallestLevel + 1).ToString();
+        _levelTexts[1].text = (smallestLevel + 2).ToString();
+        _levelTexts[2].text = "lvl"+ (smallestLevel + 1).ToString();
+        float fillAmount = currentPower - (float)powerNeededForNewLevelSkill[smallestLevel];
+        fillAmount /= (float)powerNeededForNewLevelSkill[smallestLevel + 1] - (float)powerNeededForNewLevelSkill[smallestLevel];
+        fillAmount *= 100;
+        float currentFillAmount = _barRenderer.GetBlendShapeWeight(0);
+        DOTween.To(() => currentFillAmount, x => currentFillAmount = x, fillAmount, .2f).OnUpdate(delegate {
+            _barRenderer.SetBlendShapeWeight(0, currentFillAmount);
+        }).OnComplete(delegate {
+            canStamina = true;
+	    });
+        currentLevel = smallestLevel;
+    }
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Bullet"))
@@ -231,15 +268,22 @@ public class SingleDoorScript : MonoBehaviour
             }
             */
             other.GetComponent<BulletScript>().BulletDeActivate(true);
-            if (!locked)
+            if (_doorType != DoorType.SkillDoor)
             {
-                IncreaseAmount(other.GetComponent<BulletScript>().bulletPower);
-                Taptic.Light();
+                if (!locked)
+                {
+                    IncreaseAmount(other.GetComponent<BulletScript>().bulletPower);
+                    Taptic.Light();
+                }
+                else
+                {
+                    LockHit();
+                    Taptic.Medium();
+                }
             }
             else
             {
-                LockHit();
-                Taptic.Medium();
+                GetHit(other.GetComponent<BulletScript>().bulletPower);
             }
         }
         else if (other.CompareTag("Player"))
@@ -260,9 +304,28 @@ public class SingleDoorScript : MonoBehaviour
                         ShootingScript.instance.FirePowerUpgrade(amount);
                         break;
                     case DoorType.SkillDoor:
-                        StartCoroutine(ShootingScript.instance.GetSkillBullet(_bulletPosition, _doorSkill));
+                        //StartCoroutine(ShootingScript.instance.GetSkillBullet(_bulletPosition, _doorSkill));
+                        NewShootingScript.instance.GetSkillBullet(_doorSkill);
                         break;
                 }
+            }
+        }
+    }
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            GetHit(1);
+        }
+        if (canStamina)
+        {
+            if (currentPower > powerNeededForNewLevelSkill[currentLevel])
+            {
+                currentPower -= Time.deltaTime * staminaSpeed;
+                float fillAmount = currentPower - (float)powerNeededForNewLevelSkill[currentLevel];
+                fillAmount /= (float)powerNeededForNewLevelSkill[currentLevel + 1] - (float)powerNeededForNewLevelSkill[currentLevel];
+                fillAmount *= 100;
+                _barRenderer.SetBlendShapeWeight(0, fillAmount);
             }
         }
     }

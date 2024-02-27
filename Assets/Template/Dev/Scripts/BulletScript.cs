@@ -119,7 +119,7 @@ public class BulletScript : MonoBehaviour
                     ps.Play();
                 }
             }
-            else if (_skillsGot.Contains(Skills.IceBullet))
+           if (_skillsGot.Contains(Skills.IceBullet))
             {
                 GameObject iceHitParticle = ObjectPooler.instance.SpawnFromPool("IceExplosion", transform.position, Quaternion.identity);
                 foreach (ParticleSystem ps in iceHitParticle.GetComponentsInChildren<ParticleSystem>())
@@ -127,14 +127,15 @@ public class BulletScript : MonoBehaviour
                     ps.Play();
                 }
             }
-            else if (_skillsGot.Contains(Skills.Bomb))
+            if (_skillsGot.Contains(Skills.Bomb))
             {
+                Debug.Log("GotBomberExplosioner");
                 GameObject bombHitParticle = ObjectPooler.instance.SpawnFromPool("BombExplosion", transform.position, Quaternion.identity);
                 foreach (ParticleSystem ps in bombHitParticle.GetComponentsInChildren<ParticleSystem>())
                 {
                     ps.Play();
                 }
-            }else if (_skillsGot.Contains(Skills.Richochet))
+            }if (_skillsGot.Contains(Skills.Richochet))
             {
                 health -= 1;
             }
@@ -177,6 +178,10 @@ public class BulletScript : MonoBehaviour
                 GetComponent<Collider>().enabled = false;
                 GetComponent<TrailRenderer>().enabled = false;
                 GetComponent<TrailRenderer>().Clear();
+            }
+            else
+            {
+
             }
         }
     }

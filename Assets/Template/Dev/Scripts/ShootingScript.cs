@@ -105,7 +105,6 @@ public class ShootingScript : MonoBehaviour
     }
     private void Start()
     {
-        PlaceBases();
         for (int i = 0; i < basesInside.Count; i++)
         {
             Debug.Log("iiii" + i.ToString());
@@ -163,188 +162,6 @@ public class ShootingScript : MonoBehaviour
             return null;
         }
     }
-    public IEnumerator GetSkillBullet(Transform bulletStartPosition, Skills _skill)
-    {
-        Debug.Log("SkillEnumEntered");
-        bool gotEmptySpot = false;
-        int smallestEmptySpot = 0;
-        for(int i = 0; i < fullData.Count; i++)
-        {
-            if (fullData[i] == 0)
-            {
-                if (!gotEmptySpot)
-                {
-                    gotEmptySpot = true;
-                    smallestEmptySpot = i;
-                }
-            }
-        }
-        Debug.Log("EmptySpot" + smallestEmptySpot);
-        if (gotEmptySpot)
-        {
-            if (smallestEmptySpot < partCount)
-            {
-                fullData[smallestEmptySpot] = 1;
-                GameObject newBullet = Instantiate(bulletprefab);
-                Transform _oldBullet = _showBulletsInside[smallestEmptySpot].transform;
-                Transform _parent = _oldBullet.transform.parent;
-                Vector3 oldLocalPosition = _oldBullet.transform.localPosition;
-                Vector3 oldLocalEuler = _oldBullet.transform.localEulerAngles;
-                Vector3 oldLocalScale = _oldBullet.transform.localScale;
-                _oldBullet.transform.parent = null;
-                newBullet.transform.position = bulletStartPosition.transform.position;
-                newBullet.transform.eulerAngles = bulletStartPosition.transform.eulerAngles;
-                newBullet.transform.localScale = bulletStartPosition.transform.localScale;
-                newBullet.GetComponent<ShowBullet>().SetBullet(0, _skill, true);
-                yield return null;
-
-            }
-        }
-        else
-        {
-        }
-    }
-    public IEnumerator GetBullets(List<GameObject> bulletsToGet)
-    {
-        /*
-        stopShooting = true;
-        yield return new WaitForSeconds(.6f);
-        */
-        for (int i = 0; i < bulletsToGet.Count; i++)
-        {
-            if (SmallestEarliestBullet(bulletsToGet[i].GetComponent<BulletScript>().bulletPower) != null)
-            {
-                GameObject ourBullet = SmallestEarliestBullet(bulletsToGet[i].GetComponent<BulletScript>().bulletPower);
-
-                GameObject _newBullet = bulletsToGet[i];
-                bulletsToGet[i].transform.DOComplete();
-                bulletsToGet[i].transform.DOKill();
-
-                Transform _oldParent = ourBullet.transform.parent;
-                Vector3 oldScale = ourBullet.transform.localScale;
-                Vector3 oldPosition = ourBullet.transform.localPosition;
-                Vector3 oldEuler = ourBullet.transform.localEulerAngles;
-
-                GameObject bulletToShow = Instantiate(ourBullet);
-                Destroy(bulletToShow.GetComponent<BulletScript>());
-                bulletToShow.transform.position = ourBullet.transform.position;
-                bulletToShow.transform.localScale = ourBullet.transform.localScale;
-                bulletToShow.transform.localEulerAngles = ourBullet.transform.localEulerAngles;
-                bulletToShow.AddComponent<Rigidbody>().AddForce(new Vector3(0, -1, 2) * -200f);
-                bulletToShow.GetComponent<Rigidbody>().AddTorque(new Vector3(1, -1, 2) * -200f);
-                bulletToShow.AddComponent<BoxCollider>();
-                ourBullet.transform.parent = _newBullet.transform;
-                ourBullet.transform.localScale = _newBullet.transform.GetChild(0).localScale;
-                ourBullet.transform.localEulerAngles = _newBullet.transform.GetChild(0).localEulerAngles;
-                ourBullet.transform.localPosition = _newBullet.transform.GetChild(0).localPosition;
-                _newBullet.transform.GetChild(0).gameObject.SetActive(false);
-
-                ourBullet.GetComponent<BulletScript>().bulletPower = _newBullet.GetComponent<BulletScript>().bulletPower;
-                ourBullet.GetComponent<BulletScript>().SetBullet(new List<Skills>());
-
-                ourBullet.transform.parent = _oldParent;
-                ourBullet.transform.DOLocalMove(oldPosition, .5f);
-                ourBullet.transform.DOLocalRotate(oldEuler, .5f);
-                ourBullet.transform.DOScale(oldScale, .5f).OnComplete(delegate {
-                });
-            }
-            else
-            {
-                bulletsToGet[i].transform.DOComplete();
-                bulletsToGet[i].transform.DOKill();
-                bulletsToGet[i].GetComponent<Rigidbody>().useGravity = true;
-                bulletsToGet[i].GetComponent<Collider>().enabled = true;
-                bulletsToGet[i].GetComponent<Collider>().isTrigger = false;
-            }
-        }
-        for (int i = 0; i < bulletsToGet.Count; i++)
-        {
-            Taptic.Light();
-            yield return new WaitForSeconds(.05f);
-        }
-        yield return new WaitForSeconds(.1f);
-    }
-    public void PlaceBases()
-    {
-        basePositions.Clear();
-
-        if (partCount <= 5)
-        {
-            foreach (Transform bb in _singlePosition)
-            {
-                basePositions.Add(bb);
-            }
-            openBaseCount = 1;
-        }
-        else if (partCount > 5 && partCount <= 10)
-        {
-            foreach (Transform bb in _doublePosition)
-            {
-                basePositions.Add(bb);
-            }
-            openBaseCount = 2;
-        }
-        else if (partCount > 10)
-        {
-            foreach (Transform bb in _triplePosition)
-            {
-                basePositions.Add(bb);
-            }
-            openBaseCount = 3;
-        }
-        for (int i = 0; i < basesInside.Count; i++)
-        {
-            if (i < openBaseCount)
-            {
-                if (!basesInside[i].gameObject.activeInHierarchy)
-                {
-                    basesInside[i].gameObject.SetActive(true);
-                    basesInside[i].transform.localScale = Vector3.zero;
-                }
-            }
-            else
-            {
-                basesInside[i].gameObject.SetActive(false);
-            }
-        }
-        for (int i = 0; i < openBaseCount; i++)
-        {
-            Transform refPos = basePositions[i];
-            BulletCase _caseScript = basesInside[i].GetComponent<BulletCase>();
-            _caseScript.transform.parent = refPos;
-            _caseScript.transform.DOScale(Vector3.one, .2f).SetEase(rotateAnimCurve);
-            //_caseScript.transform.localPosition = Vector3.zero;
-            if (_caseScript.transform.localPosition != Vector3.zero)
-            {
-                _caseScript.transform.DOLocalMove(Vector3.zero, .2f).SetEase(rotateAnimCurve);
-            }
-            _caseScript.transform.localEulerAngles = Vector3.zero;
-        }
-    }
-    public void AddPart()
-    {
-        partCount++;
-        for(int i = 0; i < _partsInside.Count; i++)
-        {
-            if (i < partCount)
-            {
-                if (!_partsInside[i].gameObject.activeInHierarchy)
-                {
-                    _partsInside[i].gameObject.SetActive(true);
-                    Vector3 scale = _partsInside[i].gameObject.transform.localScale;
-                    _partsInside[i].gameObject.transform.localScale = Vector3.zero;
-                    _partsInside[i].gameObject.transform.DOScale(scale, .2f).SetEase(rotateAnimCurve);
-                    //_partsInside[i].SetBulletSize();
-                }
-            }
-            else
-            {
-                
-                _partsInside[i].gameObject.SetActive(false);
-            }
-        }
-        PlaceBases();
-    }
     public void FireRateUpgrade(float amount)
     {
         fireRate += amount * rateIncreaseAmount;
@@ -360,19 +177,6 @@ public class ShootingScript : MonoBehaviour
         if (currentRange < 2f)
         {
             currentRange = 2;
-        }
-    }
-    public void BulletPowerUpgradeFromUI()
-    {
-        PlayUpgradeParticle();
-        PlayerPrefs.SetFloat("StartPower", PlayerPrefs.GetFloat("StartPower") + RemoteConfig.GetInstance().GetFloat("PoweUpgradeAmountFromUI", .5f));
-        for (int i = 0; i < basesInside.Count; i++)
-        {
-            foreach (GameObject _bullet in basesInside[i].bulletsInside)
-            {
-                _bullet.GetComponent<BulletScript>().bulletPower = PlayerPrefs.GetFloat("StartPower");
-                _bullet.GetComponent<BulletScript>().SetBullet(new List<Skills>());
-            }
         }
     }
     public void FireRangeUpgradeFromUI()
@@ -413,15 +217,6 @@ public class ShootingScript : MonoBehaviour
         {
             ps.Play();
         }
-    }
-    public void FirePowerUpgradeFromUI()
-    {
-        foreach (ParticleSystem ps in upgradeParticle.GetComponentsInChildren<ParticleSystem>())
-        {
-            ps.Play();
-        }
-        power += .1f;
-        PlayerPrefs.SetFloat("FirePower", power);
     }
     private void FireRateChanged()
     {
@@ -576,7 +371,6 @@ public class ShootingScript : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.G))
         {
-            AddPart();
         }
     }
     public void Shoot(float shootPower,List<Skills> _skillsInside)

@@ -27,7 +27,7 @@ public class NewShootingScript : MonoBehaviour
     public Skills skillToPut;
     List<int> fullData = new List<int>();
 
-
+    [SerializeField]private List<GameObject> _weaponsInside = new List<GameObject>();
 
 
     [Header("ShootPart")]
@@ -246,6 +246,17 @@ public class NewShootingScript : MonoBehaviour
             }
             openBaseCount = 3;
         }
+        for(int i = 0; i < _weaponsInside.Count; i++)
+        {
+            if (i == openBaseCount - 1)
+            {
+                _weaponsInside[i].SetActive(true);
+            }
+            else
+            {
+                _weaponsInside[i].SetActive(false);
+            }
+        }
         for (int i = 0; i < basesInside.Count; i++)
         {
             if (i < openBaseCount)
@@ -306,9 +317,12 @@ public class NewShootingScript : MonoBehaviour
                 {
                     if (_secondBullets[0].activeInHierarchy)
                     {
-                        if (_secondBullets[0].GetComponent<RevolverParts>()._bulletInside.GetComponent<ShowBullet>().skillBullet)
+                        if (_secondBullets[0].GetComponent<RevolverParts>()._bulletInside != null)
                         {
-                            skillsToGive.Add(_secondBullets[0].GetComponent<RevolverParts>()._bulletInside.GetComponent<ShowBullet>().skill);
+                            if (_secondBullets[0].GetComponent<RevolverParts>()._bulletInside.GetComponent<ShowBullet>().skillBullet)
+                            {
+                                skillsToGive.Add(_secondBullets[0].GetComponent<RevolverParts>()._bulletInside.GetComponent<ShowBullet>().skill);
+                            }
                         }
                     }
                 }
