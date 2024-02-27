@@ -5,6 +5,8 @@ using DG.Tweening;
 using System.Linq;
 public class BulletCase : MonoBehaviour
 {
+    public List<int> skillNumber = new List<int>();
+    public List<bool> isSkill = new List<bool>();
     public List<GameObject> bulletsInside = new List<GameObject>();
     public List<Transform> bulletPositions = new List<Transform>();
     public List<Transform> revolverParts = new List<Transform>();
@@ -17,27 +19,82 @@ public class BulletCase : MonoBehaviour
     public bool miniGameCase;
     int bulletNum;
     public float throwBackForce;
-    private void Awake()
+    public int startPartNumber;
+
+
+    [SerializeField]List<int> fullData = new List<int>();
+    public bool firstRevolver;
+    private void Start()
     {
-        bulletsInside.Clear();
-        for (int i = 0; i < bulletAmount; i++)
+        if (firstRevolver)
+        {
+            
+        }
+        for (int i = 0; i < bulletPositions.Count; i++)
+        {
+            bulletPositions[i].transform.parent = revolverParts[i].transform;
+            revolverParts[i].GetComponent<RevolverParts>()._bulletPosition = bulletPositions[i].gameObject;
+        }
+    }
+    public void AddSkillBullet(Skills _bulletSkill)
+    {
+        bool foundEmptyPosition = false;
+        int emptyPosition = 0;
+        for (int i = 0; i < fullData.Count; i++)
+        {
+            if (fullData[i] == 0)
+            {
+                if (!foundEmptyPosition)
+                {
+                    emptyPosition = i;
+                    foundEmptyPosition = true;
+                }
+            }
+        }
+        if (foundEmptyPosition)
         {
             GameObject newBullet = Instantiate(_bulletPrefab);
-            newBullet.transform.parent = bulletPositions[i];
+            newBullet.transform.parent = bulletPositions[emptyPosition];
             newBullet.transform.localScale = Vector3.one;
             newBullet.transform.localPosition = Vector3.zero;
             newBullet.transform.localEulerAngles = Vector3.zero;
             bulletsInside.Add(newBullet);
+            newBullet.GetComponent<ShowBullet>().SetBullet(0, _bulletSkill, true);
+            revolverParts[emptyPosition].GetComponent<RevolverParts>()._bulletInside = newBullet.GetComponent<ShowBullet>();
+            NewShootingScript.instance.bulletsInside.Add(newBullet.GetComponent<ShowBullet>());
+            Debug.Log("AddedBullet");
+            fullData[emptyPosition] = 1;
         }
-        bulletAmount = bulletsInside.Count;
-        singleBulletAngle = 360f / (float)bulletAmount;
-        FormateInCircle();
     }
-    private void Start()
+    public void AddPowerBullet(float power)
     {
-        for (int i = 0; i < bulletsInside.Count; i++)
+        bool foundEmptyPosition = false;
+        int emptyPosition = 0;
+        for (int i = 0; i < fullData.Count; i++)
         {
-            bulletsInside[i].transform.parent = revolverParts[i].transform;
+            if (fullData[i] == 0)
+            {
+                if (!foundEmptyPosition)
+                {
+                    emptyPosition = i;
+                    foundEmptyPosition = true;
+                }
+            }
+        }
+        if (foundEmptyPosition)
+        {
+            GameObject newBullet = Instantiate(_bulletPrefab);
+            newBullet.transform.parent = bulletPositions[emptyPosition];
+            newBullet.transform.localScale = Vector3.one;
+            newBullet.transform.localPosition = Vector3.zero;
+            newBullet.transform.localEulerAngles = Vector3.zero;
+            Debug.Log("BulletAdded");
+            bulletsInside.Add(newBullet);
+            newBullet.GetComponent<ShowBullet>().SetBullet(power, Skills.BiggerBullets, false);
+            revolverParts[emptyPosition].GetComponent<RevolverParts>()._bulletInside = newBullet.GetComponent<ShowBullet>();
+            NewShootingScript.instance.bulletsInside.Add(newBullet.GetComponent<ShowBullet>());
+            Debug.Log("AddedBullet");
+            fullData[emptyPosition] = 1;
         }
     }
     public GameObject GetBullet(int bulletNumber)
@@ -51,7 +108,6 @@ public class BulletCase : MonoBehaviour
         {
             float currentAngle = i * singleBulletAngle;
             float xPosition = radius * Mathf.Sin(Mathf.Deg2Rad * currentAngle);
-            Debug.Log(xPosition + "xPosition"+i+ "_CosValue" + Mathf.Cos(Mathf.Deg2Rad * currentAngle) + "_CurrentAngle" + currentAngle);
             float yPosition = radius * Mathf.Cos(Mathf.Deg2Rad * currentAngle);
             bulletsInside[i].transform.localPosition = new Vector3(0, yPosition, xPosition);
         }

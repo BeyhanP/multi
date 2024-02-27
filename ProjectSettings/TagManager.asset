@@ -9,6 +9,8 @@ TagManager:
   - Money
   - Engel
   - FxTemporaire
+  - SinglePiece
+  - HardFinish
   layers:
   - Default
   - TransparentFX

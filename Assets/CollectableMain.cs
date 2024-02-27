@@ -83,6 +83,7 @@ public class CollectableMain : MonoBehaviour
     }
     public void GetHit(float _addAmount)
     {
+        List<GameObject> _sendPieceLister = new List<GameObject>();
         _collectableLayersInside[currentLayerNumber]._layerPower-= _addAmount;
         _collectableLayersInside[currentLayerNumber]._currentThrowAmount += _collectableLayersInside[currentLayerNumber]._throwAmountPerPower * _addAmount;
         if (_collectableLayersInside[currentLayerNumber]._layerPower <= 0)
@@ -96,6 +97,7 @@ public class CollectableMain : MonoBehaviour
                     _collectableLayersInside[currentLayerNumber]._cubesInside[i].AddComponent<Rigidbody>().AddExplosionForce(explodeForce, new Vector3(transform.position.x, _collectableLayersInside[currentLayerNumber]._cubesInside[i].transform.position.y, transform.position.z), 100);
                     _collectableLayersInside[currentLayerNumber]._cubesInside[i].AddComponent<BoxCollider>();
                     _collectableLayersInside[currentLayerNumber]._cubesInside[i].transform.parent = null;
+                    _sendPieceLister.Add(_collectableLayersInside[currentLayerNumber]._cubesInside[i]);
                 }
             }
             currentLayerNumber++;
@@ -115,6 +117,7 @@ public class CollectableMain : MonoBehaviour
                     _collectableLayersInside[currentLayerNumber]._cubesInside[i].AddComponent<Rigidbody>().AddExplosionForce(explodeForce, new Vector3(transform.position.x, _collectableLayersInside[currentLayerNumber]._cubesInside[i].transform.position.y, transform.position.z), 100);
                     _collectableLayersInside[currentLayerNumber]._cubesInside[i].AddComponent<BoxCollider>();
                     _collectableLayersInside[currentLayerNumber]._cubesInside[i].transform.parent = null;
+                    _sendPieceLister.Add(_collectableLayersInside[currentLayerNumber]._cubesInside[i]);
                 }
             }
             if (!nonking)
@@ -124,6 +127,7 @@ public class CollectableMain : MonoBehaviour
                 nonking = true;
             }
         }
+        StartCoroutine(SendPieces(_sendPieceLister)); 
         SetPowerTexter();
     }
     private IEnumerator Noink()
@@ -140,6 +144,24 @@ public class CollectableMain : MonoBehaviour
             yield return new WaitForSeconds(.03f);
         }
         nonking = false;
+    }
+    private IEnumerator SendPieces(List<GameObject> _piecesToSend)
+    {
+        yield return new WaitForSeconds(.8f);
+        for(int i = 0; i < _piecesToSend.Count; i++)
+        {
+            GameObject _singlePiece = _piecesToSend[i];
+            _singlePiece.gameObject.tag = "SinglePiece";
+            _piecesToSend[i].transform.DOComplete();
+            _piecesToSend[i].transform.DOKill();
+            _piecesToSend[i].GetComponent<Rigidbody>().isKinematic = true;
+            Vector3 _jumpPosition = GameManager.instance._collectablePosition.position;
+            _jumpPosition.z = _piecesToSend[i].transform.position.z;
+            _piecesToSend[i].transform.DOJump(_jumpPosition, 1, 1, .3f).OnComplete(delegate {
+                _singlePiece.AddComponent<SingleCollectablePiecer>().move = true;
+            });
+            yield return null;
+        }
     }
     private void OnTriggerEnter(Collider other)
     {

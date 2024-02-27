@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 using DG.Tweening;
 using ElephantSDK;
@@ -23,46 +24,52 @@ public class ShootingScript : MonoBehaviour
     [SerializeField] private float rateIncreaseAmount;
     [SerializeField] private float rangeIncreaseAmount;
     [SerializeField] private float powerIncreaseAmount;
-
-    public List<float> anglesToRotate = new List<float>();
     [SerializeField] List<BulletCase> basesInside = new List<BulletCase>();
-    int currentAngleNumber;
     public float angleAddAmount;
-    float currentAngle;
     [SerializeField] AnimationCurve rotateAnimCurve;
-    [SerializeField] Transform bulletDescendPosition;
-    [SerializeField] float bulletPunchAmount;
     public List<ParticleSystem> muzzleParticles;
-    List<float> currentPowers = new List<float>();
     public static ShootingScript instance;
-
-    List<int> fullData = new List<int>();
-
     [SerializeField] List<Transform> basePositions = new List<Transform>();
-    [SerializeField] private List<Transform> shootPositions = new List<Transform>();
-
-
-    [SerializeField] Transform caseThrowPosition;
+    [SerializeField] List<Transform> rotatePositions = new List<Transform>();
     [SerializeField] GameObject basePrefab;
-    [SerializeField] Vector3 caseThrowForce;
     public bool stopShooting;
     public bool SpreadShotUnlocked;
     public GameObject upgradeParticle;
 
 
+    public List<Transform> _singlePosition;
+    public List<Transform> _doublePosition;
+    public List<Transform> _triplePosition;
 
-    [SerializeField] AnimationCurve partCurve;
-    int partNumber;
-    public void SetMiniGun()
-    {
-        int baseCount = basesInside.Count;
-        muzzleParticles[0].transform.localPosition = shootPosition.localPosition;
-    }
+
+    public List<ShowBullet> _showBulletsInside = new List<ShowBullet>();
+
+    public List<RevolverParts> _partsInside;
+
+    public GameObject bulletprefab;
+    public int partCount;
+    public int openBaseCount;
+
+
+
+    [SerializeField] List<int> fullData = new List<int>();
     private void Awake()
     {
         instance = this;
 
-
+       for(int i = 0; i < 15; i++)
+        {
+            fullData.Add(0);
+        }
+        partCount = 5;
+        for(int i = 0; i < partCount; i++)
+        {
+            BulletAdder(PlayerPrefs.GetInt("StartPower"));
+        }
+        for(int i = 0; i < partCount; i++)
+        {
+            fullData[i] = 1;
+        }
         fireRate = RemoteConfig.GetInstance().GetFloat("StartFireRate", 1) + PlayerPrefs.GetInt("RateUpgradedAmount") * RemoteConfig.GetInstance().GetFloat("RateUpgradeIncAmount", .01f);
         currentRange = RemoteConfig.GetInstance().GetFloat("StartFireRange", 20) + PlayerPrefs.GetInt("RangeUpgradedAmount") * RemoteConfig.GetInstance().GetFloat("RangeUpgradeIncAmount", .25f);
         rateIncreaseAmount = RemoteConfig.GetInstance().GetFloat("RateIncAmount", .02f);
@@ -84,12 +91,6 @@ public class ShootingScript : MonoBehaviour
         shootInterval = 1 / fireRate;
         counter = shootInterval;
         float singleAngle = 360f / 5;
-        for (int i = 0; i < 5; i++)
-        {
-            anglesToRotate.Add(i * singleAngle);
-        }
-        anglesToRotate.RemoveAt(0);
-        anglesToRotate.Add(360);
         angleAddAmount = singleAngle;
         //SetMiniGun();
         List<float> powerList = new List<float>();
@@ -97,18 +98,34 @@ public class ShootingScript : MonoBehaviour
         {
             powerList.Add(1);
         }
-        StartCoroutine(GetBase(powerList, false, new List<BulletCase>()));
+    }
+    public void BulletAdder(float power)
+    {
+
     }
     private void Start()
     {
-
+        PlaceBases();
         for (int i = 0; i < basesInside.Count; i++)
         {
+            Debug.Log("iiii" + i.ToString());
+            for(int b = 0; b < basesInside[i].bulletsInside.Count; b++)
+            {
+                basesInside[i].bulletsInside[b].GetComponent<ShowBullet>().SetBullet((i * 5)+b,Skills.BiggerBullets);
+                Debug.Log(b * (i + 1) + "Power" + i.ToString()+"i");
+            }
             foreach (GameObject _bullet in basesInside[i].bulletsInside)
             {
                 //_bullet.GetComponent<BulletScript>().bulletPower = PlayerPrefs.GetFloat("StartPower");
-                _bullet.GetComponent<ShowBullet>().SetBullet(PlayerPrefs.GetFloat("StartPower"));
+                int b = 0;
+                b++;
+                
             }
+        }
+        for (int i = 0; i < _showBulletsInside.Count; i++)
+        {
+            //_showBulletsInside[i]._power = i;
+            //_showBulletsInside[i]._powerText.text = i.ToString();
         }
     }
     public void GameStarted()
@@ -146,6 +163,47 @@ public class ShootingScript : MonoBehaviour
             return null;
         }
     }
+    public IEnumerator GetSkillBullet(Transform bulletStartPosition, Skills _skill)
+    {
+        Debug.Log("SkillEnumEntered");
+        bool gotEmptySpot = false;
+        int smallestEmptySpot = 0;
+        for(int i = 0; i < fullData.Count; i++)
+        {
+            if (fullData[i] == 0)
+            {
+                if (!gotEmptySpot)
+                {
+                    gotEmptySpot = true;
+                    smallestEmptySpot = i;
+                }
+            }
+        }
+        Debug.Log("EmptySpot" + smallestEmptySpot);
+        if (gotEmptySpot)
+        {
+            if (smallestEmptySpot < partCount)
+            {
+                fullData[smallestEmptySpot] = 1;
+                GameObject newBullet = Instantiate(bulletprefab);
+                Transform _oldBullet = _showBulletsInside[smallestEmptySpot].transform;
+                Transform _parent = _oldBullet.transform.parent;
+                Vector3 oldLocalPosition = _oldBullet.transform.localPosition;
+                Vector3 oldLocalEuler = _oldBullet.transform.localEulerAngles;
+                Vector3 oldLocalScale = _oldBullet.transform.localScale;
+                _oldBullet.transform.parent = null;
+                newBullet.transform.position = bulletStartPosition.transform.position;
+                newBullet.transform.eulerAngles = bulletStartPosition.transform.eulerAngles;
+                newBullet.transform.localScale = bulletStartPosition.transform.localScale;
+                newBullet.GetComponent<ShowBullet>().SetBullet(0, _skill, true);
+                yield return null;
+
+            }
+        }
+        else
+        {
+        }
+    }
     public IEnumerator GetBullets(List<GameObject> bulletsToGet)
     {
         /*
@@ -168,7 +226,6 @@ public class ShootingScript : MonoBehaviour
                 Vector3 oldEuler = ourBullet.transform.localEulerAngles;
 
                 GameObject bulletToShow = Instantiate(ourBullet);
-                bulletToShow.GetComponent<BulletScript>().throwerBulleter = true;
                 Destroy(bulletToShow.GetComponent<BulletScript>());
                 bulletToShow.transform.position = ourBullet.transform.position;
                 bulletToShow.transform.localScale = ourBullet.transform.localScale;
@@ -176,7 +233,6 @@ public class ShootingScript : MonoBehaviour
                 bulletToShow.AddComponent<Rigidbody>().AddForce(new Vector3(0, -1, 2) * -200f);
                 bulletToShow.GetComponent<Rigidbody>().AddTorque(new Vector3(1, -1, 2) * -200f);
                 bulletToShow.AddComponent<BoxCollider>();
-                ourBullet.GetComponent<BulletScript>().throwerBulleter = true;
                 ourBullet.transform.parent = _newBullet.transform;
                 ourBullet.transform.localScale = _newBullet.transform.GetChild(0).localScale;
                 ourBullet.transform.localEulerAngles = _newBullet.transform.GetChild(0).localEulerAngles;
@@ -184,13 +240,12 @@ public class ShootingScript : MonoBehaviour
                 _newBullet.transform.GetChild(0).gameObject.SetActive(false);
 
                 ourBullet.GetComponent<BulletScript>().bulletPower = _newBullet.GetComponent<BulletScript>().bulletPower;
-                ourBullet.GetComponent<BulletScript>().SetBullet();
+                ourBullet.GetComponent<BulletScript>().SetBullet(new List<Skills>());
 
                 ourBullet.transform.parent = _oldParent;
                 ourBullet.transform.DOLocalMove(oldPosition, .5f);
                 ourBullet.transform.DOLocalRotate(oldEuler, .5f);
                 ourBullet.transform.DOScale(oldScale, .5f).OnComplete(delegate {
-                    ourBullet.GetComponent<BulletScript>().throwerBulleter = false;
                 });
             }
             else
@@ -209,114 +264,86 @@ public class ShootingScript : MonoBehaviour
         }
         yield return new WaitForSeconds(.1f);
     }
-    public IEnumerator GetBase(List<float> basePowers, bool fromMiniGame, List<BulletCase> _basesToGet)
+    public void PlaceBases()
     {
-        stopShooting = true;
+        basePositions.Clear();
 
-
-        if (!fromMiniGame)
+        if (partCount <= 5)
         {
-            if (basesInside.Count < 6)
+            foreach (Transform bb in _singlePosition)
             {
-                GameObject _basePrefab = Instantiate(basePrefab);
-                BulletCase _caseScript = _basePrefab.GetComponent<BulletCase>();
-                _caseScript.miniGameCase = false;
-                for (int i = 0; i < _caseScript.bulletsInside.Count; i++)
-                {
-                    _caseScript.bulletsInside[i].GetComponent<ShowBullet>().SetBullet(basePowers[i]);
-                }
-                basesInside.Add(_caseScript);
-                Transform refPos = basePositions[basesInside.Count - 1];
-                _caseScript.transform.parent = refPos.parent;
-                _caseScript.transform.localScale = refPos.transform.localScale;
-                _caseScript.transform.localPosition = refPos.transform.localPosition;
-                _caseScript.transform.localEulerAngles = refPos.transform.localEulerAngles;
-                int multipilier = 0;
-                if (basesInside.Count % 2 == 0)
-                {
-                    multipilier = 1;
-                }
-                else
-                {
-                    multipilier = -1;
-                }
-                _caseScript.transform.localEulerAngles = refPos.transform.localEulerAngles;
-
-                SetMiniGun();
+                basePositions.Add(bb);
             }
-            yield return new WaitForSeconds(.1f);
+            openBaseCount = 1;
         }
-        else
+        else if (partCount > 5 && partCount <= 10)
         {
-            Debug.Log(_basesToGet.Count + "GetCounter" + basesInside.Count + "BaseInsideCounter");
-            if (basesInside.Count + _basesToGet.Count <= 6)
+            foreach (Transform bb in _doublePosition)
             {
-                Debug.Log("Smaller");
-                Taptic.Medium();
-                for (int i = 0; i < _basesToGet.Count; i++)
+                basePositions.Add(bb);
+            }
+            openBaseCount = 2;
+        }
+        else if (partCount > 10)
+        {
+            foreach (Transform bb in _triplePosition)
+            {
+                basePositions.Add(bb);
+            }
+            openBaseCount = 3;
+        }
+        for (int i = 0; i < basesInside.Count; i++)
+        {
+            if (i < openBaseCount)
+            {
+                if (!basesInside[i].gameObject.activeInHierarchy)
                 {
-                    BulletCase _baseToGet = _basesToGet[i];
-                    _baseToGet.transform.DOComplete();
-                    _baseToGet.transform.DOKill();
-                    _baseToGet.GetComponent<BulletCase>().miniGameCase = false;
-                    _baseToGet.transform.parent = basePositions[basesInside.Count].transform.parent;
-                    _baseToGet.transform.DOScale(basePositions[basesInside.Count].transform.localScale, .5f);
-                    _baseToGet.transform.DOLocalRotate(basePositions[basesInside.Count].transform.localEulerAngles, .5f);
-                    _baseToGet.transform.DOLocalMove(basePositions[basesInside.Count].transform.localPosition, .5f);
-                    basesInside.Add(_baseToGet);
-                    SetMiniGun();
+                    basesInside[i].gameObject.SetActive(true);
+                    basesInside[i].transform.localScale = Vector3.zero;
                 }
-                yield return new WaitForSeconds(Time.deltaTime + .5f);
-                stopShooting = false;
             }
             else
             {
-                Debug.Log("Bigger");
-                float singleNumber = 0;
-                float totalNumber = 0;
-                for (int i = 0; i < basesInside.Count; i++)
-                {
-                    foreach (GameObject _bullet in basesInside[i].bulletsInside)
-                    {
-                        totalNumber += _bullet.GetComponent<BulletScript>().bulletPower;
-                    }
-                }
-                for (int i = 0; i < _basesToGet.Count; i++)
-                {
-                    foreach (GameObject _bullet in _basesToGet[i].bulletsInside)
-                    {
-                        totalNumber += _bullet.GetComponent<BulletScript>().bulletPower;
-                    }
-                }
-                singleNumber = (int)(totalNumber / 6f);
-                for (int i = 0; i < basesInside.Count; i++)
-                {
-                    //basesInside[i].transform.DOScale(Vector3.zero, .2f);
-                }
-
-                List<float> newBasePowers = new List<float>();
-                for (int i = 0; i < 6; i++)
-                {
-                    newBasePowers.Add(singleNumber);
-                }
-                for (int i = 0; i < _basesToGet.Count; i++)
-                {
-                    _basesToGet[i].transform.DOScale(Vector3.zero, .2f);
-                }
-                for (int i = 0; i < basesInside.Count; i++)
-                {
-                    basesInside[i].transform.DOLocalMove(basePositions[0].localPosition, .2f);
-                    basesInside[i].transform.DOScale(Vector3.zero, .05f).SetDelay(.15f);
-                    yield return new WaitForSeconds(.05f);
-                }
-                foreach (ParticleSystem ps in upgradeParticle.GetComponentsInChildren<ParticleSystem>())
-                {
-                    ps.Play();
-                }
-                basesInside.Clear();
-                StartCoroutine(GetBase(newBasePowers, false, null));
+                basesInside[i].gameObject.SetActive(false);
             }
         }
+        for (int i = 0; i < openBaseCount; i++)
+        {
+            Transform refPos = basePositions[i];
+            BulletCase _caseScript = basesInside[i].GetComponent<BulletCase>();
+            _caseScript.transform.parent = refPos;
+            _caseScript.transform.DOScale(Vector3.one, .2f).SetEase(rotateAnimCurve);
+            //_caseScript.transform.localPosition = Vector3.zero;
+            if (_caseScript.transform.localPosition != Vector3.zero)
+            {
+                _caseScript.transform.DOLocalMove(Vector3.zero, .2f).SetEase(rotateAnimCurve);
+            }
+            _caseScript.transform.localEulerAngles = Vector3.zero;
+        }
+    }
+    public void AddPart()
+    {
+        partCount++;
+        for(int i = 0; i < _partsInside.Count; i++)
+        {
+            if (i < partCount)
+            {
+                if (!_partsInside[i].gameObject.activeInHierarchy)
+                {
+                    _partsInside[i].gameObject.SetActive(true);
+                    Vector3 scale = _partsInside[i].gameObject.transform.localScale;
+                    _partsInside[i].gameObject.transform.localScale = Vector3.zero;
+                    _partsInside[i].gameObject.transform.DOScale(scale, .2f).SetEase(rotateAnimCurve);
+                    //_partsInside[i].SetBulletSize();
+                }
+            }
+            else
+            {
+                
+                _partsInside[i].gameObject.SetActive(false);
+            }
+        }
+        PlaceBases();
     }
     public void FireRateUpgrade(float amount)
     {
@@ -344,7 +371,7 @@ public class ShootingScript : MonoBehaviour
             foreach (GameObject _bullet in basesInside[i].bulletsInside)
             {
                 _bullet.GetComponent<BulletScript>().bulletPower = PlayerPrefs.GetFloat("StartPower");
-                _bullet.GetComponent<BulletScript>().SetBullet();
+                _bullet.GetComponent<BulletScript>().SetBullet(new List<Skills>());
             }
         }
     }
@@ -406,71 +433,131 @@ public class ShootingScript : MonoBehaviour
     }
     public IEnumerator RotateToNext()
     {
-        if (stopShooting)
+        for (int i = 0; i < rotatePositions.Count; i++)
         {
-            yield return null;
+            rotatePositions[i].transform.DOLocalRotate(new Vector3(angleAddAmount, 0, 0), .5f / fireRate, RotateMode.LocalAxisAdd).SetEase(rotateAnimCurve);
         }
-        currentAngleNumber++;
-        currentAngle += angleAddAmount;
-        if (currentAngleNumber >= 6)
+        yield return new WaitForSeconds(.5f / fireRate);
+        List<Skills> skillList = new List<Skills>();
+        float totalPower = 0;
+        switch (openBaseCount)
         {
-            currentAngleNumber = 0;
-        }
-        int currentBulletNumber = currentAngleNumber;
-        yield return new WaitForSeconds(.8f / fireRate);
-        currentPowers.Clear();
-        for (int i = 0; i < basesInside.Count; i++)
-        {
-            int bulletNumber = 0;
-            if (i % 2 == 0)
-            {
-                bulletNumber = currentBulletNumber;
-                Debug.Log("PlusNumber" + bulletNumber);
-            }
-            else
-            {
-                bulletNumber = 5 - currentBulletNumber + 1;
-                if (bulletNumber == 6)
+            case 1:
+                List<GameObject> bullets = new List<GameObject>();
+                for (int i = 0; i < basesInside[0].GetComponent<BulletCase>().bulletsInside.Count; i++)
                 {
-                    bulletNumber = 0;
+                    bullets.Add(basesInside[0].GetComponent<BulletCase>().bulletsInside[i]);
                 }
-                Debug.Log("MinusNumber" + bulletNumber);
-            }
-            int multiplier = 0;
-            if (i % 2 == 0)
-            {
-                multiplier = 1;
-            }
-            else
-            {
-                multiplier = -1;
-            }
-            basesInside[i].transform.DOLocalRotate(new Vector3(angleAddAmount * multiplier, 0, 0), .8f / fireRate, RotateMode.LocalAxisAdd);
-            Debug.Log(.8f / fireRate);
-            /*
-            GameObject _bullet = basesInside[i].GetBullet(bulletNumber);
-            basesInside[i].GetBullet(bulletNumber).transform.DOPunchScale(Vector3.one * bulletPunchAmount, .2f, 10, 1);
-            _bullet.GetComponentInChildren<TMPro.TextMeshPro>().color = Color.red;
-            _bullet.GetComponentInChildren<TMPro.TextMeshPro>().DOColor(Color.white, .1f).SetDelay(.1f);
-            */
-            currentPowers.Add(1);
+                bullets = bullets.OrderBy(bullet => bullet.transform.position.y).ToList();
+                Debug.Log(bullets[^1].GetComponent<ShowBullet>()._power);
+                totalPower += bullets[^1].GetComponent<ShowBullet>()._power;
+                break;
+            case 2:
+                List<GameObject> _firstBullets = new List<GameObject>();
+                for (int i = 0; i < basesInside[0].GetComponent<BulletCase>().bulletsInside.Count; i++)
+                {
+                    _firstBullets.Add(basesInside[0].GetComponent<BulletCase>().bulletsInside[i]);
+                }
+                _firstBullets = _firstBullets.OrderBy(bullet => bullet.transform.position.x).ToList();
+
+                totalPower += _firstBullets[^1].GetComponent<ShowBullet>()._power;
+                //
+
+                List<GameObject> _secondBullets = new List<GameObject>();
+                for (int i = 0; i < basesInside[1].GetComponent<BulletCase>().bulletsInside.Count; i++)
+                {
+                    _secondBullets.Add(basesInside[1].GetComponent<BulletCase>().bulletsInside[i]);
+                }
+                _secondBullets = _secondBullets.OrderBy(bullet => bullet.transform.position.x).ToList();
+                if (_secondBullets.Count > 0)
+                {
+
+                    if (_secondBullets[0].activeInHierarchy)
+                    {
+                        if (!_secondBullets[0].GetComponent<ShowBullet>().skillBullet)
+                        {
+                            totalPower += _secondBullets[0].GetComponent<ShowBullet>()._power;
+                        }
+                        else
+                        {
+                            skillList.Add(_secondBullets[0].GetComponent<ShowBullet>().skill);
+                        }
+                    }
+                }
+                break;
+            case 3:
+                List<GameObject> _bulleters = new List<GameObject>();
+                for (int i = 0; i < basesInside[0].GetComponent<BulletCase>().bulletsInside.Count; i++)
+                {
+                    _bulleters.Add(basesInside[0].GetComponent<BulletCase>().bulletsInside[i]);
+                }
+                _bulleters = _bulleters.OrderBy(bullet => bullet.transform.position.x).ToList();
+                totalPower += _bulleters[^1].GetComponent<ShowBullet>()._power;
+
+
+                //
+
+                List<GameObject> _secondBulleters = new List<GameObject>();
+                for (int i = 0; i < basesInside[1].GetComponent<BulletCase>().bulletsInside.Count; i++)
+                {
+                    _secondBulleters.Add(basesInside[1].GetComponent<BulletCase>().bulletsInside[i]);
+                }
+                _secondBulleters = _secondBulleters.OrderBy(bullet => bullet.transform.position.x).ToList();
+                if (_secondBulleters.Count > 0)
+                {
+
+                    if (_secondBulleters[0].activeInHierarchy)
+                    {
+                        if (!_secondBulleters[0].GetComponent<ShowBullet>().skillBullet)
+                        {
+                            totalPower += _secondBulleters[0].GetComponent<ShowBullet>()._power;
+                        }
+                        else
+                        {
+                            skillList.Add(_secondBulleters[0].GetComponent<ShowBullet>().skill);
+                        }
+                    }
+                }
+                List<GameObject> _thirdBulleters = new List<GameObject>();
+                for (int i = 0; i < basesInside[1].GetComponent<BulletCase>().bulletsInside.Count; i++)
+                {
+                    _thirdBulleters.Add(basesInside[1].GetComponent<BulletCase>().bulletsInside[i]);
+                }
+                _thirdBulleters = _thirdBulleters.OrderBy(bullet => bullet.transform.position.y).ToList();
+
+                float smallestX = Mathf.Infinity;
+                int iNumber = 0;
+                if (_thirdBulleters.Count > 1)
+                {
+                    for (int i = 0; i < 2; i++)
+                    {
+                        if (_thirdBulleters[i].transform.position.x < smallestX)
+                        {
+                            smallestX = _thirdBulleters[i].transform.position.x;
+                            iNumber = i;
+                        }
+                    }
+                }
+                else { iNumber = 0; }
+                if (_thirdBulleters.Count > 0)
+                {
+                    if (_thirdBulleters[iNumber].activeInHierarchy)
+                    {
+                        if (!_thirdBulleters[iNumber].GetComponent<ShowBullet>().skillBullet)
+                        {
+                            totalPower += _thirdBulleters[iNumber].GetComponent<ShowBullet>()._power;
+                        }
+                        else
+                        {
+                            skillList.Add(_thirdBulleters[iNumber].GetComponent<ShowBullet>().skill);
+                        }
+                    }
+                }
+
+                break;
         }
-        for (int i = 0; i < currentPowers.Count; i++)
-        {
-            Transform _baseToMove = basesInside[i].transform;
-            Transform _currentReference = basePositions[i];
-            //_baseToMove.transform.DOComplete();
-            //_baseToMove.transform.DOKill();
-            //_baseToMove.transform.DOLocalMoveX(_currentReference.transform.localPosition.x + .004f, .1f);
-            //_baseToMove.transform.DOLocalMoveX(_currentReference.transform.localPosition.x, .1f).SetDelay(.1f);
-            
-            Shoot(currentPowers[i]);
-            Taptic.Light();
-            yield return new WaitForSeconds(.15f / fireRate);
-        }
-        
-        ShootingScript.instance.gameObject.GetComponent<Animator>().SetFloat("FireRate", fireRate);
-        yield return new WaitForSeconds(.2f / fireRate);
+        Shoot(totalPower, skillList);
+        yield return new WaitForSeconds(.5f / fireRate);
         StartCoroutine(RotateToNext());
     }
     private void Update()
@@ -489,16 +576,10 @@ public class ShootingScript : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.G))
         {
-            List<float> powerList = new List<float>();
-            for (int i = 0; i < 6; i++)
-            {
-                powerList.Add(1);
-            }
-            StartCoroutine(GetBase(powerList, false, new List<BulletCase>()));
-            //StartCoroutine(GetBase(powerList, false),new BulletCase());
+            AddPart();
         }
     }
-    public void Shoot(float shootPower)
+    public void Shoot(float shootPower,List<Skills> _skillsInside)
     {
         if (canShoot && GameManager.instance.started)
         {
@@ -508,18 +589,7 @@ public class ShootingScript : MonoBehaviour
                 
                 Taptic.Light();
                 GameObject bullet = ObjectPooler.instance.SpawnFromPool("Bullet", shootPosition.position, Quaternion.identity);
-                /*
-//                GameObject _case = ObjectPooler.instance.SpawnFromPool("ThrowCase", caseThrowPosition.position, Quaternion.identity);
-                _case.transform.eulerAngles = caseThrowPosition.eulerAngles;
-                _case.GetComponent<Rigidbody>().velocity = Vector3.zero;
-                _case.GetComponent<Rigidbody>().isKinematic = true;
-                _case.GetComponent<Rigidbody>().isKinematic = false;
-                _case.GetComponent<Rigidbody>().AddForce(caseThrowForce);
-                _case.GetComponent<Rigidbody>().AddTorque(new Vector3(0, 0, 1) * caseThrowForce.x);
-                */
                 bullet.transform.eulerAngles = new Vector3(0, 0, 0);
-                bullet.GetComponent<BulletScript>().ShowBullet = false;
-
                 for (int i = 0; i < muzzleParticles.Count; i++)
                 {
                     muzzleParticles[i].Play();
@@ -533,7 +603,7 @@ public class ShootingScript : MonoBehaviour
                         power += currentPowers[i];
                     }
                     */
-                bullet.GetComponent<BulletScript>().ActivateBullet(shootPower);
+                bullet.GetComponent<BulletScript>().ActivateBullet(shootPower, _skillsInside);
                 bullet.GetComponent<BulletScript>().zMax = currentRange + transform.position.z;
                 bullet.transform.position = shootPosition.position;
                 Vector3 shootVector = Vector3.forward * shootForce;
@@ -545,30 +615,11 @@ public class ShootingScript : MonoBehaviour
                 {
                     Taptic.Light();
                     GameObject bullet = ObjectPooler.instance.SpawnFromPool("Bullet", shootPosition.position, Quaternion.identity);
-                    bullet.GetComponent<BulletScript>().ShowBullet = false;
-                    if (i == 0)
-                    {
-                        GameObject _case = ObjectPooler.instance.SpawnFromPool("ThrowCase", caseThrowPosition.position, Quaternion.identity);
-                        _case.transform.eulerAngles = caseThrowPosition.eulerAngles;
-                        _case.GetComponent<Rigidbody>().velocity = Vector3.zero;
-                        _case.GetComponent<Rigidbody>().isKinematic = true;
-                        _case.GetComponent<Rigidbody>().isKinematic = false;
-                        _case.GetComponent<Rigidbody>().AddForce(caseThrowForce);
-                        _case.GetComponent<Rigidbody>().AddTorque(new Vector3(0, 0, 1) * caseThrowForce.x);
-                    }
-
                     for (int m = 0; m < muzzleParticles.Count; m++)
                     {
                         muzzleParticles[m].Play();
                     }
-                    /*
-                    power = 0;
-                    for(int i = 0; i < currentPowers.Count; i++)
-                    {
-                        power += currentPowers[i];
-                    }
-                    */
-                    bullet.GetComponent<BulletScript>().ActivateBullet(shootPower);
+                    bullet.GetComponent<BulletScript>().ActivateBullet(shootPower, _skillsInside);
 
                     bullet.GetComponent<BulletScript>().zMax = currentRange + transform.position.z;
                     bullet.transform.position = shootPosition.position;

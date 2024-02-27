@@ -32,14 +32,21 @@ public class PlayerMovement : MonoBehaviour
 
     public List<MovementValues> _movementList;
 
+
+    public GameObject rotateObject;
+    [SerializeField] float roatateSpeed;
+    [SerializeField] float roatateBackSpeed;
+    [SerializeField] float currentZetAngle;
+
+
     public static PlayerMovement instance;
     public float startSpeed;
 
     private void Awake()
     {
-        instance = this ;
+        instance = this;
         _movementList[0].Sensitivity = ElephantSDK.RemoteConfig.GetInstance().GetFloat("Sensitivity", 5);
-        _movementList[0].Speed= ElephantSDK.RemoteConfig.GetInstance().GetFloat("Speed", 4);
+        _movementList[0].Speed = ElephantSDK.RemoteConfig.GetInstance().GetFloat("Speed", 4);
         mainCam = Camera.main;
         SetMovementValues(0);
         startSpeed = _movementList[0].Speed;
@@ -64,42 +71,32 @@ public class PlayerMovement : MonoBehaviour
     }
     private void ForwardMovement()
     {
-        transform.Translate(forwardVector * forwardMovementSpeed*Time.deltaTime);
+        transform.Translate(forwardVector * forwardMovementSpeed * Time.deltaTime,Space.World);
     }
     private void HorizontalMovement()
     {
-#if UNITY_EDITOR
         if (Input.GetMouseButtonDown(0))
         {
             firstMousePos = mainCam.ScreenToViewportPoint(Input.mousePosition);
             xPosition = transform.position.x;
             clicked = true;
         }
-        else if (Input.GetMouseButton(0)&&clicked)
+        else if (Input.GetMouseButton(0) && clicked)
         {
             secondMousePos = mainCam.ScreenToViewportPoint(Input.mousePosition);
-            Vector3 difference = (secondMousePos - firstMousePos)*sensitivity;
+            Vector3 difference = (secondMousePos - firstMousePos) * sensitivity;
             xPosition += difference.x;
             xPosition = Mathf.Clamp(xPosition, xClamp.x, xClamp.y);
             transform.position = new Vector3(xPosition, transform.position.y, transform.position.z);
             firstMousePos = secondMousePos;
+            currentZetAngle += difference.x * roatateSpeed;
         }
         else if (Input.GetMouseButtonUp(0))
         {
             clicked = false;
         }
-        #else
-
-
-        if (Input.touchCount > 0)
-        {
-            Touch _touch = Input.GetTouch(0);
-            Vector3 difference = _touch.deltaPosition;
-            xPosition += (difference.x)*sensitivity;
-            xPosition = Mathf.Clamp(xPosition, xClamp.x, xClamp.y);
-            transform.position = new Vector3(xPosition, transform.position.y, transform.position.z);
-        }
-        #endif
+        currentZetAngle = Mathf.Lerp(currentZetAngle, 0, Time.deltaTime * roatateBackSpeed);
+        rotateObject.transform.localEulerAngles = new Vector3(0, 0, currentZetAngle);
     }
     public IEnumerator Jump()
     {
@@ -110,12 +107,13 @@ public class PlayerMovement : MonoBehaviour
         yield return new WaitForSeconds(.15f);
         jumping = false;
     }
-    
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Finish"))
         {
             finishLinePassed = true;
+            //CinemachineManager.instance.SetCam(2);
         }
         else if (other.CompareTag("Engel"))
         {
@@ -127,9 +125,18 @@ public class PlayerMovement : MonoBehaviour
         }
         else if (other.CompareTag("Money"))
         {
+            GameObject _moneyParticle = ObjectPooler.instance.SpawnFromPool("MoneyExplosion", other.transform.position, Quaternion.identity);
+            foreach (ParticleSystem ps in _moneyParticle.GetComponentsInChildren<ParticleSystem>())
+            {
+                ps.Play();
+            }
             other.enabled = false;
             other.transform.DOScale(Vector3.zero, .2f);
-            StartCoroutine(GameManager.instance.InstNewMoney(other.transform.position,1,10));
+            StartCoroutine(GameManager.instance.InstNewMoney(other.transform.position, 1, 10));
+        }
+        else if (other.CompareTag("HardFinish"))
+        {
+            GameManager.instance.WinGame();
         }
     }
 }

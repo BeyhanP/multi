@@ -9,14 +9,17 @@ public enum DoorType
     FireRate,
     FireRange,
     FirePower,
+    SkillDoor
 }
 public class SingleDoorScript : MonoBehaviour
 {
     [Header ("Door Properties")]
     public DoorType _doorType;
+    public Skills _doorSkill;
     public float amount;
     private Vector3 startScale;
-
+    [SerializeField] List<GameObject> skillSprites = new List<GameObject>();
+    [SerializeField] Transform _bulletPosition;
     [Header ("Lock Properties")]
     public bool locked;
     [SerializeField] private int lockPower;
@@ -36,6 +39,7 @@ public class SingleDoorScript : MonoBehaviour
     [SerializeField]private List<GameObject> lockObjects = new List<GameObject>();
     float objectThrowAmount;
     float currentObjectNumber;
+
 
     public SingleDoorScript otherDoor;
     private void Awake()
@@ -100,6 +104,9 @@ public class SingleDoorScript : MonoBehaviour
             case DoorType.FirePower:
                 typeText.text = "POWER";
                 break;
+            case DoorType.SkillDoor:
+                typeText.text = _doorSkill.ToString();
+                break;
         }
         if (amount < 0)
         {
@@ -125,6 +132,10 @@ public class SingleDoorScript : MonoBehaviour
             {
                 doorNumber = 1;
             }
+            if(_doorType == DoorType.SkillDoor)
+            {
+                doorNumber = 3;
+            }
         }
         for(int i = 0; i < doors.Count; i++)
         {
@@ -135,6 +146,21 @@ public class SingleDoorScript : MonoBehaviour
             else
             {
                 doors[i].SetActive(false);
+            }
+        }
+        if(_doorType == DoorType.SkillDoor)
+        {
+            int skillNumber = ((int)_doorSkill);
+            for(int i = 0; i < skillSprites.Count; i++)
+            {
+                if (i == skillNumber)
+                {
+                    skillSprites[i].SetActive(true);
+                }
+                else
+                {
+                    skillSprites[i].SetActive(false);
+                }
             }
         }
     }
@@ -218,19 +244,25 @@ public class SingleDoorScript : MonoBehaviour
         }
         else if (other.CompareTag("Player"))
         {
-            transform.DOMoveY(transform.position.y - 5,.2f);
-            GetComponent<Collider>().enabled = false;
-            switch (_doorType)
+            if (!locked)
             {
-                case DoorType.FireRate:
-                    ShootingScript.instance.FireRateUpgrade(amount);
-                    break;
-                case DoorType.FireRange:
-                    ShootingScript.instance.FireRangeUpgrade(amount);
-                    break;
-                case DoorType.FirePower:
-                    ShootingScript.instance.FirePowerUpgrade(amount);
-                    break;
+                transform.DOMoveY(transform.position.y - 5, .2f);
+                GetComponent<Collider>().enabled = false;
+                switch (_doorType)
+                {
+                    case DoorType.FireRate:
+                        ShootingScript.instance.FireRateUpgrade(amount);
+                        break;
+                    case DoorType.FireRange:
+                        ShootingScript.instance.FireRangeUpgrade(amount);
+                        break;
+                    case DoorType.FirePower:
+                        ShootingScript.instance.FirePowerUpgrade(amount);
+                        break;
+                    case DoorType.SkillDoor:
+                        StartCoroutine(ShootingScript.instance.GetSkillBullet(_bulletPosition, _doorSkill));
+                        break;
+                }
             }
         }
     }

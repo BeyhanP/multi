@@ -20,6 +20,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject nextButton;
     private int oldRandomLevel;
 
+    public float collectableSpeed;
+
+    public Transform _collectablePosition;
+
+
     public static GameManager instance;
     private void Awake()
     {
@@ -63,7 +68,7 @@ public class GameManager : MonoBehaviour
         startCanvas.SetActive(false);
         inGameCanvas.SetActive(true);
         started = true;
-        ShootingScript.instance.GameStarted();
+        NewShootingScript.instance.GameStarted();
     }
     public void WinGame()
     {
