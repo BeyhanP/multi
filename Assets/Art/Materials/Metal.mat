@@ -9,7 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Metal
   m_Shader: {fileID: 4800000, guid: 95186851ace7d6f4cad53efd831fe73b, type: 3}
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _USECUBEMAP_OFF
   m_InvalidKeywords:
   - TCP2_DISABLE_WRAPPED_LIGHT
   - TCP2_REFLECTIONS_FRESNEL
@@ -35,7 +36,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _CubeMap:
-        m_Texture: {fileID: 8900000, guid: 5bd3dde6ef6012d4fabbbeddb40d6a4b, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
@@ -116,9 +117,9 @@ Material:
     - _FalloffOpacityIntensity: 1
     - _FresnelMax: 1.5
     - _FresnelMin: 0
-    - _FresnelStrength: 8
+    - _FresnelStrength: 0
     - _GlossMapScale: 1
-    - _Glossiness: 0.5
+    - _Glossiness: 0.615
     - _GlossyReflections: 1
     - _GradientFade: 1
     - _IndirectIntensity: 1
@@ -128,13 +129,13 @@ Material:
     - _InvertFresnelFade: 0
     - _MatCapMaskChannel: 0
     - _MatCapType: 0
-    - _Metallic: 2
+    - _Metallic: 0
     - _Mode: 0
     - _NormalsSource: 0
     - _NormalsUVType: 0
     - _OcclusionChannel: 0
     - _OcclusionStrength: 1
-    - _Opacity: 0.225
+    - _Opacity: 0.164
     - _OutlineLightingType: 0
     - _OutlineLightingTypeURP: 0
     - _OutlineMaxWidth: 1
@@ -160,7 +161,7 @@ Material:
     - _ReflectionIntensity: 1
     - _ReflectionMapType: 0
     - _ReflectionSmoothness: 0.5
-    - _Refraction: 1.1
+    - _Refraction: 2
     - _RenderingMode: 0
     - _RimMax: 1
     - _RimMin: 0.5
@@ -184,7 +185,7 @@ Material:
     - _TCP2_STYLIZED_FRESNEL: 0
     - _UVSec: 0
     - _UseAlphaTest: 0
-    - _UseCubemap: 1
+    - _UseCubemap: 0
     - _UseEmission: 0
     - _UseFresnelReflections: 1
     - _UseMatCap: 0
@@ -202,7 +203,7 @@ Material:
     - __dirty: 1
     m_Colors:
     - _BaseColor: {r: 0.6037736, g: 0.6037736, b: 0.6037736, a: 1}
-    - _Color: {r: 0, g: 0, b: 0, a: 1}
+    - _Color: {r: 0.4716981, g: 0.4716981, b: 0.4716981, a: 1}
     - _ColorCubemap: {r: 0, g: 0, b: 0, a: 1}
     - _ColorFresnel1: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

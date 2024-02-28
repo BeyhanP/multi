@@ -2,12 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using TMPro;
 public class MiniGameMain : MonoBehaviour
 {
     [SerializeField]private List<int> powerNeededForNewLayer = new List<int>();
     float currentPower;
     int currentLevel;
     [SerializeField] private List<GameObject> addSprites = new List<GameObject>();
+    public TextMeshPro capacityTexter;
     private void Awake()
     {
         AddPower(0);
@@ -41,6 +43,7 @@ public class MiniGameMain : MonoBehaviour
             }
         }
         currentLevel = smallestLevel;
+        capacityTexter.text = "+" + currentLevel.ToString() + " Capacity";
     }
     private void OnTriggerEnter(Collider other)
     {

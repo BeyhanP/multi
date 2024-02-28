@@ -19,6 +19,8 @@ public class SingleDoorScript : MonoBehaviour
     public float amount;
     private Vector3 startScale;
     [SerializeField] List<GameObject> skillSprites = new List<GameObject>();
+    [SerializeField] List<Transform> skillBalls = new List<Transform>();
+    [SerializeField] List<Vector3> skillBallsStartScales = new List<Vector3>();
     [SerializeField] Transform _bulletPosition;
     [Header ("Lock Properties")]
     public bool locked;
@@ -51,6 +53,10 @@ public class SingleDoorScript : MonoBehaviour
     int currentLevel;
     private void Awake()
     {
+        for(int i = 0; i < skillBalls.Count; i++)
+        {
+            skillBallsStartScales.Add(skillBalls[i].transform.localScale);
+        }
         if(_doorType == DoorType.SkillDoor)
         {
             currentPower = powerNeededForNewLevelSkill[startLevel];
@@ -163,7 +169,7 @@ public class SingleDoorScript : MonoBehaviour
         if(_doorType == DoorType.SkillDoor)
         {
             int skillNumber = ((int)_doorSkill);
-            for(int i = 0; i < skillSprites.Count; i++)
+            for (int i = 0; i < skillSprites.Count; i++)
             {
                 if (i == skillNumber)
                 {
@@ -247,6 +253,15 @@ public class SingleDoorScript : MonoBehaviour
             canStamina = true;
 	    });
         currentLevel = smallestLevel;
+        int skillNumber = ((int)_doorSkill);
+        for(int i = 0; i < skillBalls.Count; i++)
+        {
+            if(i == skillNumber)
+            {
+                skillBalls[i].transform.DOScale(skillBallsStartScales[i] * 1.2f, .1f);
+                skillBalls[i].transform.DOScale(skillBallsStartScales[i], .1f).SetDelay(.1f+Time.deltaTime);
+            }
+        }
     }
     private void OnTriggerEnter(Collider other)
     {

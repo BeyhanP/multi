@@ -18,8 +18,10 @@ public class UpgradeClass
 [System.Serializable]
 public class UpgradePrices
 {
+    public List<int> powerPrices = new List<int>();
     public List<int> ratePrices = new List<int>();
-    public List<int> rangePrices = new List<int>();
+    public List<int> capacityPrices = new List<int>();
+    public List<int> incomePrices = new List<int>();
 }
 
 public class UpgradeManager : MonoBehaviour
@@ -36,18 +38,32 @@ public class UpgradeManager : MonoBehaviour
         }
         for (int i = 0; i < upgrades.Count; i++)
         {
-            if (i == 1)
+            if (i == 0)
+            {
+                for (int u = 0; u < up.powerPrices.Count; u++)
+                {
+                    upgrades[i].upgradePrices.Add(up.powerPrices[u]);
+                }
+            }
+            else if (i == 1)
             {
                 for (int u = 0; u < up.ratePrices.Count; u++)
                 {
                     upgrades[i].upgradePrices.Add(up.ratePrices[u]);
                 }
             }
-            else if (i == 0)
+            else if (i == 2)
             {
-                for (int u = 0; u < up.rangePrices.Count; u++)
+                for (int u = 0; u < up.capacityPrices.Count; u++)
                 {
-                    upgrades[i].upgradePrices.Add(up.rangePrices[u]);
+                    upgrades[i].upgradePrices.Add(up.capacityPrices[u]);
+                }
+            }
+            else if (i == 3)
+            {
+                for (int u = 0; u < up.incomePrices.Count; u++)
+                {
+                    upgrades[i].upgradePrices.Add(up.incomePrices[u]);
                 }
             }
         }
@@ -78,7 +94,7 @@ public class UpgradeManager : MonoBehaviour
         }
         else
         {
-            uc.upgradeImage.sprite = uc.sprites[1];
+            uc.upgradeImage.GetComponent<Button>().interactable = false;
         }
         uc.upgradeLevelText.text = "lvl " + (PlayerPrefs.GetInt(uc.upgradeName + "Level") + 1).ToString();
         uc.upgradePriceText.text = price.ToString() + "$";
