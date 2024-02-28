@@ -10,7 +10,7 @@ public class SingleCollectablePiecer : MonoBehaviour
     {
         if (move)
         {
-            transform.Translate(new Vector3(0, 0, 1) * GameManager.instance.collectableSpeed * Time.deltaTime,Space.World);
+            transform.Translate(new Vector3(0, 0, 1) * GameManager.instance.collectableSpeed * Time.deltaTime, Space.World);
         }
     }
 }

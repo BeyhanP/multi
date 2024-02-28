@@ -9,11 +9,12 @@ public enum DoorType
     FireRate,
     FireRange,
     FirePower,
-    SkillDoor
+    SkillDoor,
+    BulletDoor
 }
 public class SingleDoorScript : MonoBehaviour
 {
-    [Header ("Door Properties")]
+    [Header("Door Properties")]
     public DoorType _doorType;
     public Skills _doorSkill;
     public float amount;
@@ -22,7 +23,7 @@ public class SingleDoorScript : MonoBehaviour
     [SerializeField] List<Transform> skillBalls = new List<Transform>();
     [SerializeField] List<Vector3> skillBallsStartScales = new List<Vector3>();
     [SerializeField] Transform _bulletPosition;
-    [Header ("Lock Properties")]
+    [Header("Lock Properties")]
     public bool locked;
     [SerializeField] private int lockPower;
     [SerializeField] private Transform lockTriangle;
@@ -34,35 +35,50 @@ public class SingleDoorScript : MonoBehaviour
 
     [SerializeField] private TextMeshPro amountText;
     [SerializeField] private TextMeshPro typeText;
-    [SerializeField]private List<GameObject> doors = new List<GameObject>();
+    [SerializeField] private List<GameObject> doors = new List<GameObject>();
     private bool shaking;
 
 
-    [SerializeField]private List<GameObject> lockObjects = new List<GameObject>();
+    [SerializeField] private List<GameObject> lockObjects = new List<GameObject>();
     float objectThrowAmount;
     float currentObjectNumber;
-    [Header ("Skill Doors")]
+    [Header("Skill Doors")]
     [SerializeField] List<TextMeshPro> _levelTexts = new List<TextMeshPro>();
     [SerializeField] SkinnedMeshRenderer _barRenderer;
-    [SerializeField]List<int> powerNeededForNewLevelSkill = new List<int>();
+    [SerializeField] List<int> powerNeededForNewLevelSkill = new List<int>();
     public SingleDoorScript otherDoor;
     [SerializeField] int startLevel;
     float currentPower;
     bool canStamina;
-    [SerializeField]float staminaSpeed;
+    [SerializeField] float staminaSpeed;
     int currentLevel;
+
+    public TextMeshPro bulletPowerTexter;
+    public TextMeshPro bulletAmountTexter;
+    public List<int> powerNeededForNewBulleter;
+    public int bulletStartPower;
+    public int bulletAmounter;
+    public GameObject _bulletDoorBulletInsider;
+    private Vector3 bulletStartScaler = new Vector3();
+
     private void Awake()
     {
-        for(int i = 0; i < skillBalls.Count; i++)
+        for (int i = 0; i < skillBalls.Count; i++)
         {
             skillBallsStartScales.Add(skillBalls[i].transform.localScale);
         }
-        if(_doorType == DoorType.SkillDoor)
+        if (_doorType == DoorType.SkillDoor)
         {
             currentPower = powerNeededForNewLevelSkill[startLevel];
             GetHit(0);
         }
-        foreach(SingleDoorScript sds in FindObjectsOfType<SingleDoorScript>())
+        else if (_doorType == DoorType.BulletDoor)
+        {
+           bulletStartScaler = _bulletDoorBulletInsider.transform.localScale;
+            currentPower = powerNeededForNewBulleter[startLevel];
+            BulletDoorHitter(0);
+        }
+        foreach (SingleDoorScript sds in FindObjectsOfType<SingleDoorScript>())
         {
             if (sds.transform.position.z == transform.position.z)
             {
@@ -82,7 +98,7 @@ public class SingleDoorScript : MonoBehaviour
         else
         {
             locked = false;
-            for(int i = 0; i < lockObjects.Count; i++)
+            for (int i = 0; i < lockObjects.Count; i++)
             {
                 lockObjects[i].SetActive(false);
             }
@@ -94,14 +110,14 @@ public class SingleDoorScript : MonoBehaviour
     }
     public void ThrowObjects(float hitPower)
     {
-        currentObjectNumber += hitPower*objectThrowAmount;
-        for(int i = 0; i < currentObjectNumber; i++)
+        currentObjectNumber += hitPower * objectThrowAmount;
+        for (int i = 0; i < currentObjectNumber; i++)
         {
             if (i < lockObjects.Count)
             {
                 if (lockObjects[i].GetComponent<Rigidbody>() == null)
                 {
-                    lockObjects[i].AddComponent<Rigidbody>().AddForce(new Vector3(0, 0, -1) * 80*Random.Range(0.8f,1.3f));
+                    lockObjects[i].AddComponent<Rigidbody>().AddForce(new Vector3(0, 0, -1) * 80 * Random.Range(0.8f, 1.3f));
                     lockObjects[i].GetComponent<Rigidbody>().AddTorque(Vector3.one * 200);
                     lockObjects[i].AddComponent<BoxCollider>();
                     lockObjects[i].transform.parent = null;
@@ -125,11 +141,14 @@ public class SingleDoorScript : MonoBehaviour
             case DoorType.SkillDoor:
                 typeText.text = _doorSkill.ToString();
                 break;
+            case DoorType.BulletDoor:
+                typeText.text = "Bullet".ToString();
+                break;
         }
         if (amount < 0)
         {
             amountText.text = amount.ToString("0");
-            
+
         }
         else
         {
@@ -150,12 +169,16 @@ public class SingleDoorScript : MonoBehaviour
             {
                 doorNumber = 1;
             }
-            if(_doorType == DoorType.SkillDoor)
+            if (_doorType == DoorType.SkillDoor)
+            {
+                doorNumber = 3;
+            }
+            if (_doorType == DoorType.BulletDoor)
             {
                 doorNumber = 3;
             }
         }
-        for(int i = 0; i < doors.Count; i++)
+        for (int i = 0; i < doors.Count; i++)
         {
             if (i == doorNumber)
             {
@@ -166,7 +189,7 @@ public class SingleDoorScript : MonoBehaviour
                 doors[i].SetActive(false);
             }
         }
-        if(_doorType == DoorType.SkillDoor)
+        if (_doorType == DoorType.SkillDoor)
         {
             int skillNumber = ((int)_doorSkill);
             for (int i = 0; i < skillSprites.Count; i++)
@@ -207,7 +230,7 @@ public class SingleDoorScript : MonoBehaviour
     private void IncreaseAmount(float bulletPower)
     {
         float beforeAmount = amount;
-        amount+=bulletPower;
+        amount += bulletPower;
         SetDoorProperties();
         if (!shaking)
         {
@@ -231,7 +254,7 @@ public class SingleDoorScript : MonoBehaviour
     }
     public void GetHit(float hitPower)
     {
-        currentPower+=hitPower;
+        currentPower += hitPower;
         int smallestLevel = 0;
         for (int i = 0; i < powerNeededForNewLevelSkill.Count; i++)
         {
@@ -242,7 +265,7 @@ public class SingleDoorScript : MonoBehaviour
         }
         _levelTexts[0].text = (smallestLevel + 1).ToString();
         _levelTexts[1].text = (smallestLevel + 2).ToString();
-        _levelTexts[2].text = "lvl"+ (smallestLevel + 1).ToString();
+        _levelTexts[2].text = "lvl" + (smallestLevel + 1).ToString();
         float fillAmount = currentPower - (float)powerNeededForNewLevelSkill[smallestLevel];
         fillAmount /= (float)powerNeededForNewLevelSkill[smallestLevel + 1] - (float)powerNeededForNewLevelSkill[smallestLevel];
         fillAmount *= 100;
@@ -251,17 +274,46 @@ public class SingleDoorScript : MonoBehaviour
             _barRenderer.SetBlendShapeWeight(0, currentFillAmount);
         }).OnComplete(delegate {
             canStamina = true;
-	    });
+        });
         currentLevel = smallestLevel;
         int skillNumber = ((int)_doorSkill);
-        for(int i = 0; i < skillBalls.Count; i++)
+        for (int i = 0; i < skillBalls.Count; i++)
         {
-            if(i == skillNumber)
+            if (i == skillNumber)
             {
                 skillBalls[i].transform.DOScale(skillBallsStartScales[i] * 1.2f, .1f);
-                skillBalls[i].transform.DOScale(skillBallsStartScales[i], .1f).SetDelay(.1f+Time.deltaTime);
+                skillBalls[i].transform.DOScale(skillBallsStartScales[i], .1f).SetDelay(.1f + Time.deltaTime);
             }
         }
+    }
+    public void BulletDoorHitter(float hitPower)
+    {
+        currentPower += hitPower;
+        int smallestLevel = 0;
+        for (int i = 0; i < powerNeededForNewBulleter.Count; i++)
+        {
+            if (currentPower >= powerNeededForNewBulleter[i])
+            {
+                smallestLevel = i;
+            }
+        }
+        _levelTexts[0].text = (smallestLevel + 1).ToString();
+        _levelTexts[1].text = (smallestLevel + 2).ToString();
+        //_levelTexts[2].text = "lvl" + (smallestLevel + 1).ToString();
+        float fillAmount = currentPower - (float)powerNeededForNewBulleter[smallestLevel];
+        fillAmount /= (float)powerNeededForNewBulleter[smallestLevel + 1] - (float)powerNeededForNewBulleter[smallestLevel];
+        fillAmount *= 100;
+        float currentFillAmount = _barRenderer.GetBlendShapeWeight(0);
+        DOTween.To(() => currentFillAmount, x => currentFillAmount = x, fillAmount, .2f).OnUpdate(delegate {
+            _barRenderer.SetBlendShapeWeight(0, currentFillAmount);
+        }).OnComplete(delegate {
+            canStamina = true;
+        });
+        currentLevel = smallestLevel;
+        _bulletDoorBulletInsider.transform.DOScale(bulletStartScaler * 1.2f, .1f);
+        _bulletDoorBulletInsider.transform.DOScale(bulletStartScaler, .1f).SetDelay(.1f + Time.deltaTime);
+        bulletPowerTexter.text = (currentLevel + 1).ToString();
+        bulletAmountTexter.text ="X"+ bulletAmounter.ToString();
     }
     private void OnTriggerEnter(Collider other)
     {
@@ -282,7 +334,7 @@ public class SingleDoorScript : MonoBehaviour
                 }
             }
             */
-            other.GetComponent<BulletScript>().BulletDeActivate(true,true,GetComponent<Ricochetable>());
+            other.GetComponent<BulletScript>().BulletDeActivate(true, true, GetComponent<Ricochetable>());
             if (_doorType != DoorType.SkillDoor)
             {
                 if (!locked)
@@ -322,6 +374,12 @@ public class SingleDoorScript : MonoBehaviour
                         //StartCoroutine(ShootingScript.instance.GetSkillBullet(_bulletPosition, _doorSkill));
                         NewShootingScript.instance.GetSkillBullet(_doorSkill);
                         break;
+                    case DoorType.BulletDoor:
+                        for(int i = 0; i < bulletAmounter; i++)
+                        {
+                            NewShootingScript.instance.GetPowerBullet(currentLevel + 1);
+                        }
+                        break;
                 }
             }
         }
@@ -330,7 +388,11 @@ public class SingleDoorScript : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.L))
         {
-            GetHit(1);
+            //GetHit(1);
+            if (_doorType == DoorType.BulletDoor)
+            {
+                BulletDoorHitter(1);
+            }
         }
         if (canStamina)
         {

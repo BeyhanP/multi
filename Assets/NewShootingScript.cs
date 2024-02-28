@@ -6,11 +6,11 @@ using DG.Tweening;
 public class NewShootingScript : MonoBehaviour
 {
     [SerializeField] List<Transform> rotatePositions = new List<Transform>();
-    float angleAddAmount = 360f/5f;
-    [SerializeField]float fireRate;
+    float angleAddAmount = 360f / 5f;
+    [SerializeField] float fireRate;
     [SerializeField] AnimationCurve rotateAnimCurve;
     int openBaseCount;
-    [SerializeField]List<GameObject> basesInside = new List<GameObject>();
+    [SerializeField] List<GameObject> basesInside = new List<GameObject>();
     List<Transform> basePositions = new List<Transform>();
     [SerializeField] List<Transform> _singlePosition;
     [SerializeField] List<Transform> _doublePosition;
@@ -27,7 +27,7 @@ public class NewShootingScript : MonoBehaviour
     public Skills skillToPut;
     List<int> fullData = new List<int>();
 
-    [SerializeField]private List<GameObject> _weaponsInside = new List<GameObject>();
+    [SerializeField] private List<GameObject> _weaponsInside = new List<GameObject>();
 
 
     [Header("ShootPart")]
@@ -36,7 +36,7 @@ public class NewShootingScript : MonoBehaviour
     [SerializeField] Transform shootPosition;
     private bool spreadShotUnlocked;
     bool canShoot;
-    [SerializeField] List<ParticleSystem> muzzleParticles = new List<ParticleSystem>(); 
+    [SerializeField] List<ParticleSystem> muzzleParticles = new List<ParticleSystem>();
     public static NewShootingScript instance;
     private void Awake()
     {
@@ -47,7 +47,7 @@ public class NewShootingScript : MonoBehaviour
             fullData.Add(0);
         }
         partCount = 5;
-        for(int i=0; i< partCount; i++)
+        for (int i = 0; i < partCount; i++)
         {
             _unlockedParts.Add(_partsInside[i]);
             PowerBulletAdd(PlayerPrefs.GetInt("StartPower", 1));
@@ -68,10 +68,12 @@ public class NewShootingScript : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.P))
         {
             AddPart();
-        }else if (Input.GetKeyDown(KeyCode.Y))
+        }
+        else if (Input.GetKeyDown(KeyCode.Y))
         {
             GetPowerBullet(2);
-        }else if (Input.GetKeyDown(KeyCode.S))
+        }
+        else if (Input.GetKeyDown(KeyCode.S))
         {
             GetSkillBullet(skillToPut);
         }
@@ -195,7 +197,7 @@ public class NewShootingScript : MonoBehaviour
         {
             partCount++;
         }
-        for(int i = 0; i < _partsInside.Count; i++)
+        for (int i = 0; i < _partsInside.Count; i++)
         {
             if (i < partCount)
             {
@@ -246,7 +248,7 @@ public class NewShootingScript : MonoBehaviour
             }
             openBaseCount = 3;
         }
-        for(int i = 0; i < _weaponsInside.Count; i++)
+        for (int i = 0; i < _weaponsInside.Count; i++)
         {
             if (i == openBaseCount - 1)
             {
@@ -328,7 +330,7 @@ public class NewShootingScript : MonoBehaviour
                 }
                 break;
             case 3:
-               
+
 
                 //
 
@@ -583,7 +585,7 @@ public class NewShootingScript : MonoBehaviour
         }
         return totalPower;
     }
-    public void Shoot(float shootPower,List<Skills> _skillsInside)
+    public void Shoot(float shootPower, List<Skills> _skillsInside)
     {
         if (canShoot && GameManager.instance.started)
         {

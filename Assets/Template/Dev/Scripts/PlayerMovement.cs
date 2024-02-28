@@ -71,7 +71,7 @@ public class PlayerMovement : MonoBehaviour
     }
     private void ForwardMovement()
     {
-        transform.Translate(forwardVector * forwardMovementSpeed * Time.deltaTime,Space.World);
+        transform.Translate(forwardVector * forwardMovementSpeed * Time.deltaTime, Space.World);
     }
     private void HorizontalMovement()
     {
