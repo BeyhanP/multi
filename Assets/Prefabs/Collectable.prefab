@@ -21917,7 +21917,7 @@ MonoBehaviour:
     _throwAmountPerPower: 0
     _currentThrowAmount: 0
     _singlePiecePowerAmount: 1
-    _layerPower: 10
+    _layerPower: 5
   - _cubesInside:
     - {fileID: 4567029532469484178}
     - {fileID: 5511833101637409309}
@@ -21959,7 +21959,7 @@ MonoBehaviour:
     _throwAmountPerPower: 0
     _currentThrowAmount: 0
     _singlePiecePowerAmount: 2
-    _layerPower: 20
+    _layerPower: 5
   - _cubesInside:
     - {fileID: 7766710609088142519}
     - {fileID: 3600974719895624887}
@@ -22001,7 +22001,7 @@ MonoBehaviour:
     _throwAmountPerPower: 0
     _currentThrowAmount: 0
     _singlePiecePowerAmount: 3
-    _layerPower: 30
+    _layerPower: 10
   - _cubesInside:
     - {fileID: 5430865190449782772}
     - {fileID: 4382660885754927434}
@@ -22043,7 +22043,7 @@ MonoBehaviour:
     _throwAmountPerPower: 0
     _currentThrowAmount: 0
     _singlePiecePowerAmount: 4
-    _layerPower: 40
+    _layerPower: 10
   - _cubesInside:
     - {fileID: 4162865057903101010}
     - {fileID: 4415737398962247283}
@@ -22085,7 +22085,7 @@ MonoBehaviour:
     _throwAmountPerPower: 0
     _currentThrowAmount: 0
     _singlePiecePowerAmount: 5
-    _layerPower: 50
+    _layerPower: 15
   - _cubesInside:
     - {fileID: 5832359327209389562}
     - {fileID: 2540582750279117062}
@@ -22127,7 +22127,7 @@ MonoBehaviour:
     _throwAmountPerPower: 0
     _currentThrowAmount: 0
     _singlePiecePowerAmount: 6
-    _layerPower: 60
+    _layerPower: 15
   - _cubesInside:
     - {fileID: 2622252919421648136}
     - {fileID: 8560362197737168159}
@@ -22169,7 +22169,7 @@ MonoBehaviour:
     _throwAmountPerPower: 0
     _currentThrowAmount: 0
     _singlePiecePowerAmount: 7
-    _layerPower: 70
+    _layerPower: 15
   - _cubesInside:
     - {fileID: 5527975404841520215}
     - {fileID: 851710533635502715}
@@ -22207,223 +22207,14 @@ MonoBehaviour:
     - {fileID: 916256370928462348}
     - {fileID: 5957146296556585500}
     - {fileID: 4423076132916381351}
-    _mainParent: {fileID: 5279930682497149391}
+    _mainParent: {fileID: 5279930682439670257}
     _throwAmountPerPower: 0
     _currentThrowAmount: 0
-    _singlePiecePowerAmount: 8
-    _layerPower: 80
-  - _cubesInside:
-    - {fileID: 859636961338445558}
-    - {fileID: 7362839118545831728}
-    - {fileID: 6714818737402949166}
-    - {fileID: 982449927806507472}
-    - {fileID: 6486034500832527393}
-    - {fileID: 8127190847003606295}
-    - {fileID: 8137406144065541263}
-    - {fileID: 2191787084429425626}
-    - {fileID: 8475100316177895210}
-    - {fileID: 4098188206426909780}
-    - {fileID: 4146902496795826736}
-    - {fileID: 3785782318779482439}
-    - {fileID: 4829043431369739335}
-    - {fileID: 5178628180608000855}
-    - {fileID: 3881782435188809313}
-    - {fileID: 4007358487010012810}
-    - {fileID: 6051082196457150117}
-    - {fileID: 2527443693172462448}
-    - {fileID: 4298940926653658779}
-    - {fileID: 3708141595248987801}
-    - {fileID: 3467840075397580023}
-    - {fileID: 6468602892925269072}
-    - {fileID: 5884590946475714371}
-    - {fileID: 867522771589827356}
-    - {fileID: 4260456759928167966}
-    - {fileID: 554445562693564199}
-    - {fileID: 6441253125666584238}
-    - {fileID: 7408830665100984321}
-    - {fileID: 9099628861664193473}
-    - {fileID: 569751336886781440}
-    - {fileID: 7668997450502696762}
-    - {fileID: 1503200858365058804}
-    - {fileID: 56111655464476451}
-    - {fileID: 6035008554309729520}
-    - {fileID: 2148918649281947421}
-    - {fileID: 6233552111667032269}
-    _mainParent: {fileID: 5279930683349128636}
-    _throwAmountPerPower: 0
-    _currentThrowAmount: 0
-    _singlePiecePowerAmount: 9
-    _layerPower: 90
-  - _cubesInside:
-    - {fileID: 7874358648046072247}
-    - {fileID: 899025766111030077}
-    - {fileID: 4414477092034838604}
-    - {fileID: 9219120158702429629}
-    - {fileID: 2998118430140468908}
-    - {fileID: 4572964501264102171}
-    - {fileID: 6666907875044847682}
-    - {fileID: 1625503816551579755}
-    - {fileID: 3219304806167205210}
-    - {fileID: 1432558369145641598}
-    - {fileID: 8058617086748849061}
-    - {fileID: 6711509290166978851}
-    - {fileID: 385460682544601953}
-    - {fileID: 5048755616215743018}
-    - {fileID: 7915697178645284239}
-    - {fileID: 2677094949361664089}
-    - {fileID: 8828547299936061106}
-    - {fileID: 3995584823990410520}
-    - {fileID: 2102784092865620363}
-    - {fileID: 2186091186228771856}
-    - {fileID: 3946127530298065012}
-    - {fileID: 9203844238294660312}
-    - {fileID: 3604184810492615984}
-    - {fileID: 2563890721177358279}
-    - {fileID: 4899647267904917721}
-    - {fileID: 6256354672302127874}
-    - {fileID: 5692654144852401149}
-    - {fileID: 2715606276460871822}
-    - {fileID: 5309533691556287477}
-    - {fileID: 932381724859995970}
-    - {fileID: 1786439924478449234}
-    - {fileID: 3407734397220225844}
-    - {fileID: 37372742761797533}
-    - {fileID: 4263353104491092312}
-    - {fileID: 7694884380551914990}
-    - {fileID: 3660238990308942165}
-    _mainParent: {fileID: 5279930682519216270}
-    _throwAmountPerPower: 0
-    _currentThrowAmount: 0
-    _singlePiecePowerAmount: 10
-    _layerPower: 100
-  - _cubesInside:
-    - {fileID: 7731028734920306960}
-    - {fileID: 7598218512517389686}
-    - {fileID: 4557366783169077579}
-    - {fileID: 4705304008011472808}
-    - {fileID: 8626771584071393486}
-    - {fileID: 1809972557277826315}
-    - {fileID: 7505968882793028634}
-    - {fileID: 6250401478629311030}
-    - {fileID: 4767566035574699920}
-    - {fileID: 8583993520550665587}
-    - {fileID: 3437362197999356696}
-    - {fileID: 5105052052873832979}
-    - {fileID: 2199481504181765724}
-    - {fileID: 2307898597654551814}
-    - {fileID: 6336550337771401487}
-    - {fileID: 7249548413487852558}
-    - {fileID: 8854500728830416150}
-    - {fileID: 8779853173686739379}
-    - {fileID: 5674987036827455201}
-    - {fileID: 6096663268854018401}
-    - {fileID: 4416138111039610243}
-    - {fileID: 6747507988934233489}
-    - {fileID: 1746883699156402522}
-    - {fileID: 2610908309014705640}
-    - {fileID: 6644007890469864704}
-    - {fileID: 8191682531276104775}
-    - {fileID: 4802784265172065843}
-    - {fileID: 8540748996031356776}
-    - {fileID: 3980653274154999882}
-    - {fileID: 1377030047968820912}
-    - {fileID: 2939755382768375031}
-    - {fileID: 7173856949488597025}
-    - {fileID: 6239656313284121562}
-    - {fileID: 4481260475294843061}
-    - {fileID: 3781004594915672973}
-    - {fileID: 2726532226929277950}
-    _mainParent: {fileID: 5279930681657519817}
-    _throwAmountPerPower: 0
-    _currentThrowAmount: 0
-    _singlePiecePowerAmount: 11
-    _layerPower: 110
-  - _cubesInside:
-    - {fileID: 5395646270104694174}
-    - {fileID: 2799595313914098656}
-    - {fileID: 3386320756811846982}
-    - {fileID: 7828677701374061545}
-    - {fileID: 3235969165028834705}
-    - {fileID: 3933352324263246490}
-    - {fileID: 2912443550060343021}
-    - {fileID: 713395545157303917}
-    - {fileID: 2297143379009528640}
-    - {fileID: 5095422287561324834}
-    - {fileID: 1732276389177662346}
-    - {fileID: 1269457645485583674}
-    - {fileID: 3487968030623484693}
-    - {fileID: 7607859241960535474}
-    - {fileID: 1730175257999465232}
-    - {fileID: 7932687296096303213}
-    - {fileID: 3820282549922688873}
-    - {fileID: 7456480134134237285}
-    - {fileID: 1811048046576088938}
-    - {fileID: 3689505917062708926}
-    - {fileID: 6079458262943346737}
-    - {fileID: 8842039926060037452}
-    - {fileID: 6749878439300241887}
-    - {fileID: 1187697417729175003}
-    - {fileID: 7001290693688221160}
-    - {fileID: 1122329121864275186}
-    - {fileID: 3867350773171911429}
-    - {fileID: 6523670368102609980}
-    - {fileID: 7213997179126246105}
-    - {fileID: 754695737583779319}
-    - {fileID: 9128189655003822917}
-    - {fileID: 6851976455314062173}
-    - {fileID: 1743932211722684218}
-    - {fileID: 6528544411579901529}
-    - {fileID: 1712467843105528011}
-    - {fileID: 7082172650946110945}
-    _mainParent: {fileID: 5279930683493869390}
-    _throwAmountPerPower: 0
-    _currentThrowAmount: 0
-    _singlePiecePowerAmount: 12
-    _layerPower: 120
-  - _cubesInside:
-    - {fileID: 580805936695069575}
-    - {fileID: 1542049296524475406}
-    - {fileID: 8326938648074744355}
-    - {fileID: 8161576766186820623}
-    - {fileID: 7484559339882929644}
-    - {fileID: 9000937723746932369}
-    - {fileID: 771805899428265829}
-    - {fileID: 6399272798829569108}
-    - {fileID: 9191945525179685272}
-    - {fileID: 6379669024220273113}
-    - {fileID: 544381182748446883}
-    - {fileID: 5601333689883149037}
-    - {fileID: 816262174315547478}
-    - {fileID: 6786212893266778216}
-    - {fileID: 6210829265135432684}
-    - {fileID: 1686575683730254852}
-    - {fileID: 4865368042776644815}
-    - {fileID: 7755017473077820312}
-    - {fileID: 3519657769630535211}
-    - {fileID: 3141694242412518058}
-    - {fileID: 7912235007341608573}
-    - {fileID: 1000538135203721862}
-    - {fileID: 369274886284271159}
-    - {fileID: 2661279287178352487}
-    - {fileID: 5808103073640161559}
-    - {fileID: 6518952583386440224}
-    - {fileID: 4448502765323987262}
-    - {fileID: 2293916756174028200}
-    - {fileID: 5280289608952677267}
-    - {fileID: 3305213952074137087}
-    - {fileID: 96045775846432664}
-    - {fileID: 8420553185229168289}
-    - {fileID: 4915121818997493086}
-    - {fileID: 5206107924835759120}
-    - {fileID: 1197178909179560194}
-    - {fileID: 7789775029455762680}
-    _mainParent: {fileID: 5279930682631567782}
-    _throwAmountPerPower: 0
-    _currentThrowAmount: 0
-    _singlePiecePowerAmount: 13
-    _layerPower: 130
+    _singlePiecePowerAmount: 7
+    _layerPower: 15
   getLayers: 0
   explodeForce: 100
+  collectableAmount: 8
   _powerText: {fileID: 5279930682182195515}
   rotShakeAmount: 0.5
 --- !u!65 &5010110733829965558
