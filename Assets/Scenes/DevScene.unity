@@ -2302,7 +2302,7 @@ GameObject:
   m_IsActive: 1
 --- !u!95 &919132148310924895
 Animator:
-  serializedVersion: 5
+  serializedVersion: 4
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -2319,7 +2319,7 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &919132149159771853
 GameObject:
   m_ObjectHideFlags: 0
@@ -3794,6 +3794,10 @@ PrefabInstance:
     - target: {fileID: 5010110733829965552, guid: 00b0573b015124c7ab5c2b493a406c4f, type: 3}
       propertyPath: m_Name
       value: Collectable
+      objectReference: {fileID: 0}
+    - target: {fileID: 5010110733829965559, guid: 00b0573b015124c7ab5c2b493a406c4f, type: 3}
+      propertyPath: collectableAmount
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5678104023224212554, guid: 00b0573b015124c7ab5c2b493a406c4f, type: 3}
       propertyPath: m_RootOrder

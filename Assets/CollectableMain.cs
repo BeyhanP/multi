@@ -26,7 +26,7 @@ public class CollectableMain : MonoBehaviour
     public float explodeForce;
     bool nonking;
 
-
+    public int collectableAmount;
 
     [SerializeField] TextMeshPro _powerText;
     [SerializeField] float rotShakeAmount;
@@ -34,8 +34,16 @@ public class CollectableMain : MonoBehaviour
     {
         for(int i = 0; i < _collectableLayersInside.Count; i++)
         {
-            float dropAmountPerPower = (float)_collectableLayersInside[i]._cubesInside.Count / (float)_collectableLayersInside[i]._layerPower;
-            _collectableLayersInside[i]._throwAmountPerPower = dropAmountPerPower;
+            if (i < collectableAmount)
+            {
+                float dropAmountPerPower = (float)_collectableLayersInside[i]._cubesInside.Count / (float)_collectableLayersInside[i]._layerPower;
+                _collectableLayersInside[i]._throwAmountPerPower = dropAmountPerPower;
+            }
+            else
+            {
+                _collectableLayersInside[i]._mainParent.gameObject.SetActive(false);
+                _collectableLayersInside[i]._layerPower = 0;
+            }
         }
         SetPowerTexter();
     }
