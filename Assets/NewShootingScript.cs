@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using DG.Tweening;
+using ElephantSDK;
 public class NewShootingScript : MonoBehaviour
 {
     [SerializeField] List<Transform> rotatePositions = new List<Transform>();
@@ -50,10 +51,41 @@ public class NewShootingScript : MonoBehaviour
         for (int i = 0; i < partCount; i++)
         {
             _unlockedParts.Add(_partsInside[i]);
-            PowerBulletAdd(PlayerPrefs.GetInt("StartPower", 1));
+            PowerBulletAdd(PlayerPrefs.GetFloat("StartPower", 1));
             fullData[i] = 1;
         }
+        fireRate = RemoteConfig.GetInstance().GetFloat("StartRate", 1) + PlayerPrefs.GetInt("RateUpgradedAmount") * RemoteConfig.GetInstance().GetFloat("UpgradeRateIncAmount", .02f);
+        currentRange = RemoteConfig.GetInstance().GetFloat("StartRange", 20);
         PlaceBases();
+    }
+    public void StartRateUpgrade()
+    {
+        PlayerPrefs.SetInt("RateUpgradedAmount", PlayerPrefs.GetInt("RateUpgradedAmount") + 1);
+        fireRate = RemoteConfig.GetInstance().GetFloat("StartRate", 1) + PlayerPrefs.GetInt("RateUpgradedAmount") * RemoteConfig.GetInstance().GetFloat("UpgradeRateIncAmount", .02f);
+    }
+    public void IncomeMultiplierUpgrade()
+    {
+        PlayerPrefs.SetFloat("IncomeMultiplier", PlayerPrefs.GetFloat("IncomeMultiplier") + .1f);
+    }
+    public void StartCapacityUpgrade()
+    {
+        PlayerPrefs.SetFloat("StartCapacityPower", PlayerPrefs.GetFloat("StartCapacityPower") + RemoteConfig.GetInstance().GetFloat("CapacityUpgradeAmount", 3));
+        PlayerMain.instance.StartAddPower(RemoteConfig.GetInstance().GetFloat("CapacityUpgradeAmount", 3));
+        
+        foreach(MiniGameMain mgm in FindObjectsOfType<MiniGameMain>())
+        {
+            mgm.AddPower(RemoteConfig.GetInstance().GetFloat("CapacityUpgradeAmount", 3));
+        }
+    }
+    public void StartPowerUpgrade()
+    {
+        PlayerPrefs.SetFloat("StartPower", PlayerPrefs.GetFloat("StartPower") + .5f);
+        for(int i = 0; i < bulletsInside.Count; i++)
+        {
+            bulletsInside[i].GetComponent<ShowBullet>()._power = PlayerPrefs.GetFloat("StartPower");
+            bulletsInside[i].GetComponent<ShowBullet>().SetBullet(PlayerPrefs.GetFloat("StartPower"), Skills.BiggerBullets, false);
+        }
+        
     }
     public void PowerBulletAdd(float power)
     {
@@ -106,7 +138,7 @@ public class NewShootingScript : MonoBehaviour
             }
             else if (smallestEmptyPosition >= 10)
             {
-                basesInside[1].GetComponent<BulletCase>().AddSkillBullet(_bulletSkill);
+                basesInside[2].GetComponent<BulletCase>().AddSkillBullet(_bulletSkill);
             }
         }
         else
@@ -142,7 +174,7 @@ public class NewShootingScript : MonoBehaviour
             }
             else if (smallestEmptyPosition >= 10)
             {
-                basesInside[1].GetComponent<BulletCase>().AddPowerBullet(newPower);
+                basesInside[2].GetComponent<BulletCase>().AddPowerBullet(newPower);
             }
         }
         else
@@ -302,90 +334,44 @@ public class NewShootingScript : MonoBehaviour
     public List<Skills> GetActiveSkills()
     {
         List<Skills> skillsToGive = new List<Skills>();
-        switch (openBaseCount)
-        {
-            case 0:
-                break;
-            case 2:
-                //
-                List<GameObject> _secondBullets = new List<GameObject>();
-                for (int i = 0; i < basesInside[1].GetComponent<BulletCase>().revolverParts.Count; i++)
-                {
-                    _secondBullets.Add(basesInside[1].GetComponent<BulletCase>().revolverParts[i].gameObject);
-                }
-                Debug.Log(_secondBullets.Count + "SecondBulletCounter");
-                _secondBullets = _secondBullets.OrderBy(bullet => bullet.transform.position.x).ToList();
-                if (_secondBullets.Count > 0)
-                {
-                    if (_secondBullets[0].activeInHierarchy)
-                    {
-                        if (_secondBullets[0].GetComponent<RevolverParts>()._bulletInside != null)
-                        {
-                            if (_secondBullets[0].GetComponent<RevolverParts>()._bulletInside.GetComponent<ShowBullet>().skillBullet)
-                            {
-                                skillsToGive.Add(_secondBullets[0].GetComponent<RevolverParts>()._bulletInside.GetComponent<ShowBullet>().skill);
-                            }
-                        }
-                    }
-                }
-                break;
-            case 3:
-
-
-                //
-
-                List<GameObject> _secondBulleters = new List<GameObject>();
-                for (int i = 0; i < basesInside[1].GetComponent<BulletCase>().bulletsInside.Count; i++)
-                {
-                    _secondBulleters.Add(basesInside[1].GetComponent<BulletCase>().bulletsInside[i]);
-                }
-                _secondBulleters = _secondBulleters.OrderBy(bullet => bullet.transform.position.x).ToList();
-                if (_secondBulleters.Count > 0)
-                {
-
-                    if (_secondBulleters[0].activeInHierarchy)
-                    {
-                        if (_secondBulleters[0].GetComponent<ShowBullet>().skillBullet)
-                        {
-                            skillsToGive.Add(_secondBulleters[0].GetComponent<ShowBullet>().skill);
-                        }
-                    }
-                }
-                List<GameObject> _thirdBulleters = new List<GameObject>();
-                for (int i = 0; i < basesInside[1].GetComponent<BulletCase>().bulletsInside.Count; i++)
-                {
-                    _thirdBulleters.Add(basesInside[1].GetComponent<BulletCase>().bulletsInside[i]);
-                }
-                _thirdBulleters = _thirdBulleters.OrderBy(bullet => bullet.transform.position.y).ToList();
-
-                float smallestX = Mathf.Infinity;
-                int iNumber = 0;
-                if (_thirdBulleters.Count > 1)
-                {
-                    for (int i = 0; i < 2; i++)
-                    {
-                        if (_thirdBulleters[i].transform.position.x < smallestX)
-                        {
-                            smallestX = _thirdBulleters[i].transform.position.x;
-                            iNumber = i;
-                        }
-                    }
-                }
-                else { iNumber = 0; }
-                if (_thirdBulleters.Count > 0)
-                {
-                    if (_thirdBulleters[iNumber].activeInHierarchy)
-                    {
-                        if (_thirdBulleters[iNumber].GetComponent<ShowBullet>().skillBullet)
-                        {
-                            skillsToGive.Add(_thirdBulleters[iNumber].GetComponent<ShowBullet>().skill);
-                        }
-                    }
-                }
-
-                break;
-        }
+        
         return skillsToGive;
+    }
+    public Skills SecondBaseSkills()
+    {
+        Skills _skillToGive = Skills.BiggerBullets;
+        int partCount = openBaseCount;
+        float totalPower = 0;
+        List<RevolverParts> _parts = new List<RevolverParts>();
+        for (int i = 0; i < basesInside[0].GetComponent<BulletCase>().revolverParts.Count; i++)
+        {
+            _parts.Add(basesInside[0].GetComponent<BulletCase>().revolverParts[i].GetComponent<RevolverParts>());
+        }
+        if (partCount == 1)
+        {
+            _parts = _parts.OrderBy(part => part.transform.position.y).ToList();
+            if (_parts[^1].GetComponent<ShowBullet>().skillBullet)
+            {
+                _skillToGive = _parts[^1].GetComponent<ShowBullet>().skill;
+                ShakeBullet(_parts[^1]._bulletInside);
+            }
+        }
+        else
+        {
+            _parts = _parts.OrderBy(part => part.transform.position.x).ToList();
+            if (_parts[^1].GetComponent<ShowBullet>().skillBullet)
+            {
+                _skillToGive = _parts[^1].GetComponent<ShowBullet>().skill;
+
+                ShakeBullet(_parts[^1]._bulletInside);
+            }
+        }
+        return _skillToGive;
+    }
+    public Skills ThirdBaseSkills()
+    {
+        Skills _skillToGive = Skills.BiggerBullets;
+        return _skillToGive;
     }
     private void ShakeBullet(ShowBullet _ss)
     {
@@ -410,7 +396,7 @@ public class NewShootingScript : MonoBehaviour
         {
             _parts.Add(basesInside[0].GetComponent<BulletCase>().revolverParts[i].GetComponent<RevolverParts>());
         }
-        if(partCount == 1)
+        if (partCount == 1)
         {
             _parts = _parts.OrderBy(part => part.transform.position.y).ToList();
             totalPower += _parts[^1]._bulletInside._power;

@@ -98,7 +98,6 @@ public class BulletCase : MonoBehaviour
             newBullet.transform.localScale = Vector3.one;
             newBullet.transform.localPosition = Vector3.zero;
             newBullet.transform.localEulerAngles = Vector3.zero;
-            Debug.Log("BulletAdded");
             bulletsInside.Add(newBullet);
             newBullet.GetComponent<ShowBullet>().SetBullet(power, Skills.BiggerBullets, false);
             revolverParts[emptyPosition].GetComponent<RevolverParts>()._bulletInside = newBullet.GetComponent<ShowBullet>();

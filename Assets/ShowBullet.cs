@@ -36,12 +36,21 @@ public class ShowBullet : MonoBehaviour
         if (!skillBullet)
         {
             //AnimationParter
-            StartCoroutine(DropAnimation());
+            if (FindObjectOfType<GameManager>().started)
+            {
+
+                StartCoroutine(DropAnimation());
+            }
             _power = power;
             _powerText.text = power.ToString("");
         }
         else
         {
+            if (FindObjectOfType<GameManager>().started)
+            {
+
+                StartCoroutine(DropAnimation());
+            }
             _power = 0;
             _powerText.gameObject.SetActive(false);
             int skillNumber = ((int)_skill);

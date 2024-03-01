@@ -31,6 +31,7 @@ public class UpgradeManager : MonoBehaviour
     private void Awake()
     {
         UpgradePrices up = new UpgradePrices();
+        PlayerPrefs.SetFloat("Coin", 100000);
         up = JsonUtility.FromJson<UpgradePrices>(RemoteConfig.GetInstance().Get("UpgradePrices", defaultUpgradePrices.text));
         for (int i = 0; i < upgrades.Count; i++)
         {
@@ -88,7 +89,7 @@ public class UpgradeManager : MonoBehaviour
         {
             price = uc.upgradePrices[uc.upgradePrices.Count - 1];
         }
-        if (PlayerPrefs.GetInt("Coin") >= price)
+        if (PlayerPrefs.GetFloat("Coin") >= price)
         {
             uc.upgradeImage.sprite = uc.sprites[0];
         }
@@ -114,13 +115,21 @@ public class UpgradeManager : MonoBehaviour
         switch (upgradeNum)
         {
             case 0:
+                NewShootingScript.instance.StartPowerUpgrade();
                 break;
             case 1:
+                NewShootingScript.instance.StartRateUpgrade();
+                break;
+            case 2:
+                NewShootingScript.instance.StartCapacityUpgrade();
+                break;
+            case 3:
+                NewShootingScript.instance.IncomeMultiplierUpgrade();
                 break;
         }
-        if (PlayerPrefs.GetInt("Coin") >= price)
+        if (PlayerPrefs.GetFloat("Coin") >= price)
         {
-            PlayerPrefs.SetInt("Coin", PlayerPrefs.GetInt("Coin") - price);
+            PlayerPrefs.SetFloat("Coin", PlayerPrefs.GetFloat("Coin") - price);
             PlayerPrefs.SetInt(uc.upgradeName + "Level", PlayerPrefs.GetInt(uc.upgradeName + "Level") + 1);
             GameManager.instance.RefreshCoinText();
             StartCoroutine(ShakeMainBar(uc.upgradeImage.gameObject));
@@ -130,7 +139,7 @@ public class UpgradeManager : MonoBehaviour
     private IEnumerator ShakeMainBar(GameObject mainBar)
     {
         yield return new WaitForSeconds(0);
-        Vector3 startScale = Vector3.one;
+        Vector3 startScale = Vector3.one*.8f;
         Vector3 startEuler = Vector3.zero;
         mainBar.transform.DOScale(startScale * 1.1f, .15f);
         mainBar.transform.DOLocalRotate(startEuler + new Vector3(0, 0, -5), .1f);

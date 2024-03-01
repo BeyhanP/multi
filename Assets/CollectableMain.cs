@@ -136,6 +136,10 @@ public class CollectableMain : MonoBehaviour
                 nonking = true;
             }
         }
+        for(int i = 0; i < _sendPieceLister.Count; i++)
+        {
+            FindObjectOfType<PlayerMain>().AddPower(_collectableLayersInside[startLayerNumberer]._singlePiecePowerAmount);
+        }
         StartCoroutine(SendPieces(_sendPieceLister, _collectableLayersInside[startLayerNumberer]._singlePiecePowerAmount)); 
         SetPowerTexter();
     }

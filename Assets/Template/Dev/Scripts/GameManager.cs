@@ -49,7 +49,7 @@ public class GameManager : MonoBehaviour
     }
     public void RefreshCoinText()
     {
-        coinText.text = PlayerPrefs.GetInt("Coin").ToString();
+        coinText.text = PlayerPrefs.GetFloat("Coin").ToString("0");
     }
     private void Update()
     {
@@ -173,9 +173,10 @@ public class GameManager : MonoBehaviour
         newMoney.GetComponent<TextMeshProUGUI>().DOColor(new Color(), .3f);
         newMoney.transform.DOScale(Vector3.zero, .2f);
     }
-    public IEnumerator InstNewMoney(Vector3 instPos, int side, int price)
+    public IEnumerator InstNewMoney(Vector3 instPos, int side, float price)
     {
         //GameObject newMoney = Instantiate(newerMoney);
+        price *= PlayerPrefs.GetFloat("IncomeMultiplier", 1);
         GameObject newMoney = ObjectPooler.instance.SpawnFromPool("GainText", transform.position, Quaternion.identity);
         newMoney.transform.DOKill();
         newMoney.GetComponentInChildren<TextMeshProUGUI>().color = Color.green;
@@ -194,11 +195,11 @@ public class GameManager : MonoBehaviour
             newMoney.transform.position = new Vector3(newMoney.transform.position.x, newMoney.transform.position.y, newMoney.transform.position.z);
         }
         newMoney.transform.DOMoveY(newMoney.transform.position.y + 300, 1.4f);
-        int oldCoinAmount = PlayerPrefs.GetInt("Coin");
-        PlayerPrefs.SetInt("Coin", PlayerPrefs.GetInt("Coin") + price);
-        int to = PlayerPrefs.GetInt("Coin");
+        float oldCoinAmount = PlayerPrefs.GetFloat("Coin");
+        PlayerPrefs.SetFloat("Coin", PlayerPrefs.GetFloat("Coin") + price);
+        float to = PlayerPrefs.GetFloat("Coin");
         DOTween.To(() => oldCoinAmount, x => oldCoinAmount = x, to, .2f).OnUpdate(delegate {
-            coinText.text = oldCoinAmount.ToString();
+            coinText.text = oldCoinAmount.ToString("0");
         }).OnComplete(delegate {
             RefreshCoinText();
         });
