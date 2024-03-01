@@ -60,7 +60,7 @@ public class SingleDoorScript : MonoBehaviour
     public int bulletAmounter;
     public GameObject _bulletDoorBulletInsider;
     private Vector3 bulletStartScaler = new Vector3();
-
+    [SerializeField] TextMeshPro _lockTexter;
     private void Awake()
     {
         for (int i = 0; i < skillBalls.Count; i++)
@@ -88,21 +88,30 @@ public class SingleDoorScript : MonoBehaviour
                 }
             }
         }
-        if (lockPower > 0)
+        if(_doorType == DoorType.SkillDoor || _doorType == DoorType.BulletDoor)
         {
-            triangleXMoveAmount = (trianglePositions.y - trianglePositions.x) / lockPower;
-            currentTrianglePosition = trianglePositions.x;
-            lockTriangle.transform.localPosition = new Vector3(currentTrianglePosition, lockTriangle.transform.localPosition.y, lockTriangle.transform.localPosition.z);
-            locked = true;
+
         }
         else
         {
-            locked = false;
-            for (int i = 0; i < lockObjects.Count; i++)
+            if (lockPower > 0)
             {
-                lockObjects[i].SetActive(false);
+                triangleXMoveAmount = (trianglePositions.y - trianglePositions.x) / lockPower;
+                currentTrianglePosition = trianglePositions.x;
+                lockTriangle.transform.localPosition = new Vector3(currentTrianglePosition, lockTriangle.transform.localPosition.y, lockTriangle.transform.localPosition.z);
+                locked = true;
+                _lockTexter.text = lockPower.ToString();
             }
-            lockTriangle.transform.parent.gameObject.SetActive(false);
+            else
+            {
+                locked = false;
+                _lockTexter.gameObject.SetActive(false);
+                for (int i = 0; i < lockObjects.Count; i++)
+                {
+                    lockObjects[i].SetActive(false);
+                }
+                lockTriangle.transform.parent.gameObject.SetActive(false);
+            }
         }
         startScale = transform.localScale;
         objectThrowAmount = (float)lockObjects.Count / (float)lockPower;
@@ -209,11 +218,13 @@ public class SingleDoorScript : MonoBehaviour
     {
         StartCoroutine(ShakeLockCanvas());
         lockPower -= 1;
+        _lockTexter.text = lockPower.ToString();
         currentTrianglePosition += triangleXMoveAmount * 1;
         lockTriangle.transform.DOLocalMoveX(currentTrianglePosition, .2f);
         ThrowObjects(1);
-        if (lockPower < 0)
+        if (lockPower <= 0)
         {
+            _lockTexter.transform.DOScale(Vector3.zero, .2f);
             lockCanvas.transform.DOScale(Vector3.zero, .2f);
             locked = false;
             SetDoorProperties();
@@ -337,6 +348,17 @@ public class SingleDoorScript : MonoBehaviour
             other.GetComponent<BulletScript>().BulletDeActivate(true, true, GetComponent<Ricochetable>());
             if (_doorType != DoorType.SkillDoor)
             {
+                
+            }
+            if(_doorType ==DoorType.SkillDoor)
+            {
+                GetHit(other.GetComponent<BulletScript>().bulletPower);
+            }else if(_doorType == DoorType.BulletDoor)
+            {
+                BulletDoorHitter(other.GetComponent<BulletScript>().bulletPower);
+            }
+            else
+            {
                 if (!locked)
                 {
                     IncreaseAmount(other.GetComponent<BulletScript>().bulletPower);
@@ -347,10 +369,6 @@ public class SingleDoorScript : MonoBehaviour
                     LockHit();
                     Taptic.Medium();
                 }
-            }
-            else
-            {
-                GetHit(other.GetComponent<BulletScript>().bulletPower);
             }
         }
         else if (other.CompareTag("Player"))

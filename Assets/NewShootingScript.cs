@@ -387,201 +387,75 @@ public class NewShootingScript : MonoBehaviour
         }
         return skillsToGive;
     }
+    private void ShakeBullet(ShowBullet _ss)
+    {
+        _ss._powerText.color = Color.green;
+        _ss._powerText.DOColor(Color.white, .1f).SetDelay(.1f);
+        _ss._powerText.transform.DOScale(Vector3.one * 1.4f, .2f);
+        _ss._powerText.transform.DOScale(Vector3.one, .1f).SetDelay(.2f);
+    }
     public float GetActivePower()
     {
+        float totPower = 0;
+
+        totPower += GetFirstBasePower() + GetSecondBasePower() + GetThirdBasePower();
+        return totPower;
+    }
+    public float GetFirstBasePower()
+    {
+        int partCount = openBaseCount;
         float totalPower = 0;
-        switch (openBaseCount)
+        List<RevolverParts> _parts = new List<RevolverParts>();
+        for (int i = 0; i < basesInside[0].GetComponent<BulletCase>().revolverParts.Count; i++)
         {
-            case 1:
-                List<GameObject> bullets = new List<GameObject>();
-                for (int i = 0; i < basesInside[0].GetComponent<BulletCase>().bulletsInside.Count; i++)
-                {
-                    bullets.Add(basesInside[0].GetComponent<BulletCase>().bulletsInside[i]);
-                }
-                bullets = bullets.OrderBy(bullet => bullet.transform.position.y).ToList();
-                Debug.Log(bullets.Count);
-                totalPower += bullets[^1].GetComponent<ShowBullet>()._power;
-                break;
-            case 2:
-                List<GameObject> _firstBullets = new List<GameObject>();
-                for (int i = 0; i < basesInside[0].GetComponent<BulletCase>().bulletsInside.Count; i++)
-                {
-                    _firstBullets.Add(basesInside[0].GetComponent<BulletCase>().bulletsInside[i]);
-                }
-                _firstBullets = _firstBullets.OrderBy(bullet => bullet.transform.position.x).ToList();
-                totalPower += _firstBullets[^1].GetComponent<ShowBullet>()._power;
-
-
-                //
-
-                List<GameObject> _secondBullets = new List<GameObject>();
-                for (int i = 0; i < basesInside[1].GetComponent<BulletCase>().bulletsInside.Count; i++)
-                {
-                    _secondBullets.Add(basesInside[1].GetComponent<BulletCase>().bulletsInside[i]);
-                }
-                _secondBullets = _secondBullets.OrderBy(bullet => bullet.transform.position.x).ToList();
-                if (_secondBullets.Count > 0)
-                {
-
-                    if (_secondBullets[0].activeInHierarchy)
-                    {
-                        totalPower += _secondBullets[0].GetComponent<ShowBullet>()._power;
-                    }
-                }
-                break;
-            case 3:
-                List<GameObject> _bulleters = new List<GameObject>();
-                for (int i = 0; i < basesInside[0].GetComponent<BulletCase>().bulletsInside.Count; i++)
-                {
-                    _bulleters.Add(basesInside[0].GetComponent<BulletCase>().bulletsInside[i]);
-                }
-                _bulleters = _bulleters.OrderBy(bullet => bullet.transform.position.x).ToList();
-                totalPower += _bulleters[^1].GetComponent<ShowBullet>()._power;
-
-
-                //
-
-                List<GameObject> _secondBulleters = new List<GameObject>();
-                for (int i = 0; i < basesInside[1].GetComponent<BulletCase>().bulletsInside.Count; i++)
-                {
-                    _secondBulleters.Add(basesInside[1].GetComponent<BulletCase>().bulletsInside[i]);
-                }
-                _secondBulleters = _secondBulleters.OrderBy(bullet => bullet.transform.position.x).ToList();
-                if (_secondBulleters.Count > 0)
-                {
-
-                    if (_secondBulleters[0].activeInHierarchy)
-                    {
-                        totalPower += _secondBulleters[0].GetComponent<ShowBullet>()._power;
-                    }
-                }
-                List<GameObject> _thirdBulleters = new List<GameObject>();
-                for (int i = 0; i < basesInside[1].GetComponent<BulletCase>().bulletsInside.Count; i++)
-                {
-                    _thirdBulleters.Add(basesInside[1].GetComponent<BulletCase>().bulletsInside[i]);
-                }
-                _thirdBulleters = _thirdBulleters.OrderBy(bullet => bullet.transform.position.y).ToList();
-
-                float smallestX = Mathf.Infinity;
-                int iNumber = 0;
-                if (_thirdBulleters.Count > 1)
-                {
-                    for (int i = 0; i < 2; i++)
-                    {
-                        if (_thirdBulleters[i].transform.position.x < smallestX)
-                        {
-                            smallestX = _thirdBulleters[i].transform.position.x;
-                            iNumber = i;
-                        }
-                    }
-                }
-                else { iNumber = 0; }
-                if (_thirdBulleters.Count > 0)
-                {
-                    if (_thirdBulleters[iNumber].activeInHierarchy)
-                    {
-                        totalPower += _thirdBulleters[iNumber].GetComponent<ShowBullet>()._power;
-                    }
-                }
-
-                break;
+            _parts.Add(basesInside[0].GetComponent<BulletCase>().revolverParts[i].GetComponent<RevolverParts>());
         }
-        return totalPower; switch (openBaseCount)
+        if(partCount == 1)
         {
-            case 0:
-                List<GameObject> bullets = new List<GameObject>();
-                for (int i = 0; i < basesInside[0].GetComponent<BulletCase>().bulletsInside.Count; i++)
-                {
-                    bullets.Add(basesInside[0].GetComponent<BulletCase>().bulletsInside[i]);
-                }
-                bullets = bullets.OrderBy(bullet => bullet.transform.position.y).ToList();
-                Debug.Log(bullets[^1].GetComponent<ShowBullet>()._power);
-                totalPower += bullets[^1].GetComponent<ShowBullet>()._power;
-                break;
-            case 1:
-                List<GameObject> _firstBullets = new List<GameObject>();
-                for (int i = 0; i < basesInside[0].GetComponent<BulletCase>().bulletsInside.Count; i++)
-                {
-                    _firstBullets.Add(basesInside[0].GetComponent<BulletCase>().bulletsInside[i]);
-                }
-                _firstBullets = _firstBullets.OrderBy(bullet => bullet.transform.position.x).ToList();
-
-                totalPower += _firstBullets[^1].GetComponent<ShowBullet>()._power;
-
-
-                //
-
-                List<GameObject> _secondBullets = new List<GameObject>();
-                for (int i = 0; i < basesInside[1].GetComponent<BulletCase>().bulletsInside.Count; i++)
-                {
-                    _secondBullets.Add(basesInside[1].GetComponent<BulletCase>().bulletsInside[i]);
-                }
-                _secondBullets = _secondBullets.OrderBy(bullet => bullet.transform.position.x).ToList();
-                if (_secondBullets.Count > 0)
-                {
-
-                    if (_secondBullets[0].activeInHierarchy)
-                    {
-                        totalPower += _secondBullets[0].GetComponent<ShowBullet>()._power;
-                    }
-                }
-                break;
-            case 2:
-                List<GameObject> _bulleters = new List<GameObject>();
-                for (int i = 0; i < basesInside[0].GetComponent<BulletCase>().bulletsInside.Count; i++)
-                {
-                    _bulleters.Add(basesInside[0].GetComponent<BulletCase>().bulletsInside[i]);
-                }
-                _bulleters = _bulleters.OrderBy(bullet => bullet.transform.position.x).ToList();
-                totalPower += _bulleters[^1].GetComponent<ShowBullet>()._power;
-
-
-                //
-
-                List<GameObject> _secondBulleters = new List<GameObject>();
-                for (int i = 0; i < basesInside[1].GetComponent<BulletCase>().bulletsInside.Count; i++)
-                {
-                    _secondBulleters.Add(basesInside[1].GetComponent<BulletCase>().bulletsInside[i]);
-                }
-                _secondBulleters = _secondBulleters.OrderBy(bullet => bullet.transform.position.x).ToList();
-                if (_secondBulleters.Count > 0)
-                {
-
-                    if (_secondBulleters[0].activeInHierarchy)
-                    {
-                        totalPower += _secondBulleters[0].GetComponent<ShowBullet>()._power;
-                    }
-                }
-                List<GameObject> _thirdBulleters = new List<GameObject>();
-                for (int i = 0; i < basesInside[1].GetComponent<BulletCase>().bulletsInside.Count; i++)
-                {
-                    _thirdBulleters.Add(basesInside[1].GetComponent<BulletCase>().bulletsInside[i]);
-                }
-                _thirdBulleters = _thirdBulleters.OrderBy(bullet => bullet.transform.position.y).ToList();
-
-                float smallestX = Mathf.Infinity;
-                int iNumber = 0;
-                if (_thirdBulleters.Count > 1)
-                {
-                    for (int i = 0; i < 2; i++)
-                    {
-                        if (_thirdBulleters[i].transform.position.x < smallestX)
-                        {
-                            smallestX = _thirdBulleters[i].transform.position.x;
-                            iNumber = i;
-                        }
-                    }
-                }
-                else { iNumber = 0; }
-                if (_thirdBulleters.Count > 0)
-                {
-                    if (_thirdBulleters[iNumber].activeInHierarchy)
-                    {
-                        totalPower += _thirdBulleters[iNumber].GetComponent<ShowBullet>()._power;
-                    }
-                }
-
-                break;
+            _parts = _parts.OrderBy(part => part.transform.position.y).ToList();
+            totalPower += _parts[^1]._bulletInside._power;
+            ShakeBullet(_parts[^1]._bulletInside);
+        }
+        else
+        {
+            _parts = _parts.OrderBy(part => part.transform.position.x).ToList();
+            totalPower += _parts[^1]._bulletInside._power;
+            ShakeBullet(_parts[^1]._bulletInside);
+        }
+        return totalPower;
+    }
+    public float GetSecondBasePower()
+    {
+        float totalPower = 0;
+        List<RevolverParts> _parts = new List<RevolverParts>();
+        for (int i = 0; i < basesInside[1].GetComponent<BulletCase>().revolverParts.Count; i++)
+        {
+            _parts.Add(basesInside[1].GetComponent<BulletCase>().revolverParts[i].GetComponent<RevolverParts>());
+        }
+        _parts = _parts.OrderBy(part => part.transform.position.x).ToList();
+        if (_parts[0].gameObject.activeInHierarchy && _parts[0]._bulletInside != null)
+        {
+            totalPower += _parts[0]._bulletInside._power;
+            ShakeBullet(_parts[0]._bulletInside);
+        }
+        return totalPower;
+    }
+    public float GetThirdBasePower()
+    {
+        float totalPower = 0;
+        if (openBaseCount >= 3)
+        {
+            List<RevolverParts> _parts = new List<RevolverParts>();
+            for (int i = 0; i < basesInside[2].GetComponent<BulletCase>().revolverParts.Count; i++)
+            {
+                _parts.Add(basesInside[2].GetComponent<BulletCase>().revolverParts[i].GetComponent<RevolverParts>());
+            }
+            _parts = _parts.OrderBy(part => part.transform.position.y).ToList();
+            if (_parts[0].gameObject.activeInHierarchy && _parts[0]._bulletInside != null)
+            {
+                totalPower += _parts[0]._bulletInside._power;
+                ShakeBullet(_parts[0]._bulletInside);
+            }
         }
         return totalPower;
     }

@@ -103,7 +103,6 @@ public class BulletCase : MonoBehaviour
             newBullet.GetComponent<ShowBullet>().SetBullet(power, Skills.BiggerBullets, false);
             revolverParts[emptyPosition].GetComponent<RevolverParts>()._bulletInside = newBullet.GetComponent<ShowBullet>();
             NewShootingScript.instance.bulletsInside.Add(newBullet.GetComponent<ShowBullet>());
-            Debug.Log("AddedBullet");
             fullData[emptyPosition] = 1;
         }
     }

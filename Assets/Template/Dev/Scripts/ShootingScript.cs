@@ -237,118 +237,15 @@ public class ShootingScript : MonoBehaviour
         float totalPower = 0;
         switch (openBaseCount)
         {
-            case 1:
-                List<GameObject> bullets = new List<GameObject>();
-                for (int i = 0; i < basesInside[0].GetComponent<BulletCase>().bulletsInside.Count; i++)
+            case 0:
+                for (int i = 0; i < basesInside[0].revolverParts.Count; i++)
                 {
-                    bullets.Add(basesInside[0].GetComponent<BulletCase>().bulletsInside[i]);
-                }
-                bullets = bullets.OrderBy(bullet => bullet.transform.position.y).ToList();
-                Debug.Log(bullets[^1].GetComponent<ShowBullet>()._power);
-                totalPower += bullets[^1].GetComponent<ShowBullet>()._power;
-                break;
-            case 2:
-                List<GameObject> _firstBullets = new List<GameObject>();
-                for (int i = 0; i < basesInside[0].GetComponent<BulletCase>().bulletsInside.Count; i++)
-                {
-                    _firstBullets.Add(basesInside[0].GetComponent<BulletCase>().bulletsInside[i]);
-                }
-                _firstBullets = _firstBullets.OrderBy(bullet => bullet.transform.position.x).ToList();
-
-                totalPower += _firstBullets[^1].GetComponent<ShowBullet>()._power;
-                //
-
-                List<GameObject> _secondBullets = new List<GameObject>();
-                for (int i = 0; i < basesInside[1].GetComponent<BulletCase>().bulletsInside.Count; i++)
-                {
-                    _secondBullets.Add(basesInside[1].GetComponent<BulletCase>().bulletsInside[i]);
-                }
-                _secondBullets = _secondBullets.OrderBy(bullet => bullet.transform.position.x).ToList();
-                if (_secondBullets.Count > 0)
-                {
-
-                    if (_secondBullets[0].activeInHierarchy)
+                    if (basesInside[0].revolverParts[i].transform.localPosition.z == 0.001866712f)
                     {
-                        if (!_secondBullets[0].GetComponent<ShowBullet>().skillBullet)
-                        {
-                            totalPower += _secondBullets[0].GetComponent<ShowBullet>()._power;
-                        }
-                        else
-                        {
-                            skillList.Add(_secondBullets[0].GetComponent<ShowBullet>().skill);
-                        }
+                        basesInside[0].revolverParts[i].GetComponent<RevolverParts>()._bulletInside._powerText.color = Color.green;
+                        basesInside[0].revolverParts[i].GetComponent<RevolverParts>()._bulletInside._powerText.DOColor(Color.white, .1f).SetDelay(.1f);
                     }
                 }
-                break;
-            case 3:
-                List<GameObject> _bulleters = new List<GameObject>();
-                for (int i = 0; i < basesInside[0].GetComponent<BulletCase>().bulletsInside.Count; i++)
-                {
-                    _bulleters.Add(basesInside[0].GetComponent<BulletCase>().bulletsInside[i]);
-                }
-                _bulleters = _bulleters.OrderBy(bullet => bullet.transform.position.x).ToList();
-                totalPower += _bulleters[^1].GetComponent<ShowBullet>()._power;
-
-
-                //
-
-                List<GameObject> _secondBulleters = new List<GameObject>();
-                for (int i = 0; i < basesInside[1].GetComponent<BulletCase>().bulletsInside.Count; i++)
-                {
-                    _secondBulleters.Add(basesInside[1].GetComponent<BulletCase>().bulletsInside[i]);
-                }
-                _secondBulleters = _secondBulleters.OrderBy(bullet => bullet.transform.position.x).ToList();
-                if (_secondBulleters.Count > 0)
-                {
-
-                    if (_secondBulleters[0].activeInHierarchy)
-                    {
-                        if (!_secondBulleters[0].GetComponent<ShowBullet>().skillBullet)
-                        {
-                            totalPower += _secondBulleters[0].GetComponent<ShowBullet>()._power;
-                        }
-                        else
-                        {
-                            skillList.Add(_secondBulleters[0].GetComponent<ShowBullet>().skill);
-                        }
-                    }
-                }
-                List<GameObject> _thirdBulleters = new List<GameObject>();
-                for (int i = 0; i < basesInside[1].GetComponent<BulletCase>().bulletsInside.Count; i++)
-                {
-                    _thirdBulleters.Add(basesInside[1].GetComponent<BulletCase>().bulletsInside[i]);
-                }
-                _thirdBulleters = _thirdBulleters.OrderBy(bullet => bullet.transform.position.y).ToList();
-
-                float smallestX = Mathf.Infinity;
-                int iNumber = 0;
-                if (_thirdBulleters.Count > 1)
-                {
-                    for (int i = 0; i < 2; i++)
-                    {
-                        if (_thirdBulleters[i].transform.position.x < smallestX)
-                        {
-                            smallestX = _thirdBulleters[i].transform.position.x;
-                            iNumber = i;
-                        }
-                    }
-                }
-                else { iNumber = 0; }
-                if (_thirdBulleters.Count > 0)
-                {
-                    if (_thirdBulleters[iNumber].activeInHierarchy)
-                    {
-                        if (!_thirdBulleters[iNumber].GetComponent<ShowBullet>().skillBullet)
-                        {
-                            totalPower += _thirdBulleters[iNumber].GetComponent<ShowBullet>()._power;
-                        }
-                        else
-                        {
-                            skillList.Add(_thirdBulleters[iNumber].GetComponent<ShowBullet>().skill);
-                        }
-                    }
-                }
-
                 break;
         }
         Shoot(totalPower, skillList);
