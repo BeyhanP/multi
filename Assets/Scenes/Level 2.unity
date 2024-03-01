@@ -447,6 +447,10 @@ PrefabInstance:
       propertyPath: amount
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 455799187845678392, guid: 3b41c01e1f31640cea7c61377b5b57f6, type: 3}
+      propertyPath: lockPower
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3633915287499942026, guid: 3b41c01e1f31640cea7c61377b5b57f6, type: 3}
       propertyPath: m_Name
       value: SingleDoor (1)
@@ -1569,6 +1573,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 455799187845678392, guid: 3b41c01e1f31640cea7c61377b5b57f6, type: 3}
+      propertyPath: lockPower
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3633915287499942026, guid: 3b41c01e1f31640cea7c61377b5b57f6, type: 3}
       propertyPath: m_Name
       value: SingleDoor
