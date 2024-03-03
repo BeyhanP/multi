@@ -64,7 +64,7 @@ public class ShootingScript : MonoBehaviour
         partCount = 5;
         for(int i = 0; i < partCount; i++)
         {
-            BulletAdder(PlayerPrefs.GetInt("StartPower"));
+            //BulletAdder(PlayerPrefs.GetInt("StartPower"));
         }
         for(int i = 0; i < partCount; i++)
         {
@@ -99,10 +99,6 @@ public class ShootingScript : MonoBehaviour
             powerList.Add(1);
         }
     }
-    public void BulletAdder(float power)
-    {
-
-    }
     private void Start()
     {
         for (int i = 0; i < basesInside.Count; i++)
@@ -110,7 +106,7 @@ public class ShootingScript : MonoBehaviour
             Debug.Log("iiii" + i.ToString());
             for(int b = 0; b < basesInside[i].bulletsInside.Count; b++)
             {
-                basesInside[i].bulletsInside[b].GetComponent<ShowBullet>().SetBullet((i * 5)+b,Skills.BiggerBullets);
+                basesInside[i].bulletsInside[b].GetComponent<ShowBullet>().SetBullet((i * 5)+b,Skills.BiggerBullets,0);
                 Debug.Log(b * (i + 1) + "Power" + i.ToString()+"i");
             }
             foreach (GameObject _bullet in basesInside[i].bulletsInside)
@@ -294,7 +290,7 @@ public class ShootingScript : MonoBehaviour
                         power += currentPowers[i];
                     }
                     */
-                bullet.GetComponent<BulletScript>().ActivateBullet(shootPower, _skillsInside);
+                //bullet.GetComponent<BulletScript>().ActivateBullet(shootPower, _skillsInside);
                 bullet.GetComponent<BulletScript>().zMax = currentRange + transform.position.z;
                 bullet.transform.position = shootPosition.position;
                 Vector3 shootVector = Vector3.forward * shootForce;
@@ -310,7 +306,7 @@ public class ShootingScript : MonoBehaviour
                     {
                         muzzleParticles[m].Play();
                     }
-                    bullet.GetComponent<BulletScript>().ActivateBullet(shootPower, _skillsInside);
+                    //bullet.GetComponent<BulletScript>().ActivateBullet(shootPower, _skillsInside);
 
                     bullet.GetComponent<BulletScript>().zMax = currentRange + transform.position.z;
                     bullet.transform.position = shootPosition.position;

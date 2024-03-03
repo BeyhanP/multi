@@ -182,7 +182,7 @@ public class CollectableMain : MonoBehaviour
         if (other.CompareTag("Bullet"))
         {
             GetHit(other.GetComponent<BulletScript>().bulletPower);
-            other.GetComponent<BulletScript>().BulletDeActivate(true,true);
+            other.GetComponent<BulletScript>().BulletDeActivate(true,true,GetComponent<Ricochetable>());
         }
     }
 }

@@ -10,11 +10,10 @@ public enum Skills
     BiggerBullets,
     Bomb,
     Critical,
-    Double,
     FireBullets,
     IceBullet,
+    Multi,
     Richochet,
-    Triple
 }
 public class BulletScript : MonoBehaviour
 {
@@ -33,10 +32,11 @@ public class BulletScript : MonoBehaviour
 
 
 
-
+    [SerializeField] List<ShowBullet> bulletsFrom = new List<ShowBullet>();
     [SerializeField] List<GameObject> allTrails = new List<GameObject>();
     [SerializeField] GameObject _fireTrail;
     [SerializeField] GameObject _iceTrail;
+    [SerializeField] List<int> levels = new List<int>();
     private void Awake()
     {
         /*
@@ -47,10 +47,10 @@ public class BulletScript : MonoBehaviour
         */
         //SetBullet();
     }
-    public void SetBullet(List<Skills> _skills)
+    public void SetBullet(List<Skills> _skills,List<ShowBullet> bulletsToUse)
     {
-        _skillsGot.Clear();
-        _skillsGot.AddRange(_skills);
+        bulletsFrom.Clear();
+        bulletsFrom.AddRange(bulletsToUse);
         gotCrit = false;
         if (bulletPower % 1 == 0)
         {
@@ -60,42 +60,55 @@ public class BulletScript : MonoBehaviour
         {
             GetComponentInChildren<TMPro.TextMeshPro>().text = bulletPower.ToString("0.0");
         }
+        levels.Clear();
+        List<int> skillLevels = new List<int>();
+        _skillsGot.Clear();
+        for(int i = 0; i < bulletsToUse.Count; i++)
+        {
+            if (bulletsToUse[i].skillBullet)
+            {
+                _skillsGot.Add(bulletsToUse[i].skill);
+                skillLevels.Add(bulletsToUse[i]._skillLevel);
+                levels.Add(bulletsToUse[i]._skillLevel);
+            }
+        }
         GetComponentInChildren<TMPro.TextMeshPro>().color = Color.green;
         GetComponentInChildren<TMPro.TextMeshPro>().DOColor(Color.white, .1f).SetDelay(.2f);
         for (int i = 0; i < allTrails.Count; i++)
         {
             allTrails[i].SetActive(false);
         }
-        if (_skills.Contains(Skills.Bomb))
+        if (_skillsGot.Contains(Skills.Bomb))
         {
-            bulletPower *= 2;
+            int indexOfSkill = _skillsGot.IndexOf(Skills.Bomb);
+            bulletPower *= 2 * (1 + skillLevels[indexOfSkill] * .1f);
         }
-        if (_skills.Contains(Skills.FireBullets))
+        if (_skillsGot.Contains(Skills.FireBullets))
         {
+            int indexOfSkill = _skillsGot.IndexOf(Skills.FireBullets);
             _fireTrail.gameObject.SetActive(true);
-            bulletPower *= 1.5f;
+            bulletPower *= 1.5f*(1+skillLevels[indexOfSkill]*.1f);
         }
-        if (_skills.Contains(Skills.IceBullet))
+        if (_skillsGot.Contains(Skills.IceBullet))
         {
+            Debug.Log("Activated");
+            int indexOfSkill = _skillsGot.IndexOf(Skills.IceBullet);
             _iceTrail.gameObject.SetActive(true);
-            bulletPower *= 1.5f;
+            bulletPower *= 1.5f * (1 + skillLevels[indexOfSkill] * .1f);
         }
 
-        if (_skills.Contains(Skills.Critical))
+        if (_skillsGot.Contains(Skills.Critical))
         {
-            int randomInt = Random.Range(0, 5);
-            if (randomInt == 3)
-            {
-                gotCrit = true;
-                bulletPower *= 4;
-            }
+            int indexOfSkill = _skillsGot.IndexOf(Skills.Critical);
+            gotCrit = true;
+            bulletPower *= 2*(1 + skillLevels[indexOfSkill] * .1f);
         }
-        if (_skills.Contains(Skills.Richochet))
+        if (_skillsGot.Contains(Skills.Richochet))
         {
             richocetEncounter.Clear();
             health = 2;
         }
-        if (_skills.Contains(Skills.BiggerBullets))
+        if (_skillsGot.Contains(Skills.BiggerBullets))
         {
             transform.localScale *= 1.5f;
         }
@@ -139,6 +152,15 @@ public class BulletScript : MonoBehaviour
             if (_skillsGot.Contains(Skills.Richochet))
             {
                 health -= 1;
+            }
+            if (gotCrit)
+            {
+                GameObject bombHitParticle = ObjectPooler.instance.SpawnFromPool("CritExplosion", transform.position, Quaternion.identity);
+                foreach (ParticleSystem ps in bombHitParticle.GetComponentsInChildren<ParticleSystem>())
+                {
+                    ps.Play();
+                }
+                gotCrit = false;
             }
         }
         if (showPower)
@@ -188,20 +210,24 @@ public class BulletScript : MonoBehaviour
                     float smallestDifference = Mathf.Infinity;
                     foreach (Ricochetable rr in FindObjectsOfType<Ricochetable>())
                     {
-                        Debug.Log(_ricochetObject.gameObject);
                         if (rr.gameObject != _ricochetObject.gameObject)
                         {
-                            if (Vector3.Distance(rr.transform.position, _ricochetObject.transform.position) < smallestDifference)
+                            if(rr.transform.position.z> _ricochetObject.gameObject.transform.position.z)
                             {
-                                smallestDifference = Vector3.Distance(rr.transform.position, _ricochetObject.transform.position);
-                                ricohetTo = rr.gameObject;
+                                if (Vector3.Distance(rr.transform.position, _ricochetObject.transform.position) < smallestDifference)
+                                {
+                                    smallestDifference = Vector3.Distance(rr.transform.position, _ricochetObject.transform.position);
+                                    ricohetTo = rr.gameObject;
+                                }
                             }
                         }
                     }
                     Vector3 vectoralDifference = ricohetTo.transform.position - transform.position;
                     vectoralDifference.y = 0;
                     vectoralDifference.Normalize();
+                    GetComponent<Rigidbody>().velocity = Vector3.zero;
                     GetComponent<Rigidbody>().AddForce(vectoralDifference * NewShootingScript.instance.shootForce);
+                    transform.LookAt(new Vector3(ricohetTo.transform.position.x, transform.position.y, ricohetTo.transform.position.z));
                     richocetEncounter.Add(_ricochetObject);
                 }
                 else
@@ -211,13 +237,13 @@ public class BulletScript : MonoBehaviour
             }
         }
     }
-    public void ActivateBullet(float _power, List<Skills> skill)
+    public void ActivateBullet(float _power, List<Skills> skill,List<ShowBullet> bulletsToUser)
     {
         bulletPower = _power;
         transform.DOComplete();
         transform.DOKill();
         GetComponent<TrailRenderer>().Clear();
-        GetComponent<BulletScript>().SetBullet(skill);
+        GetComponent<BulletScript>().SetBullet(skill, bulletsToUser);
         transform.DOKill();
         GetComponent<Rigidbody>().velocity = Vector3.zero;
         GetComponent<Rigidbody>().isKinematic = true;

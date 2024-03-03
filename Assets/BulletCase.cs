@@ -36,7 +36,7 @@ public class BulletCase : MonoBehaviour
             revolverParts[i].GetComponent<RevolverParts>()._bulletPosition = bulletPositions[i].gameObject;
         }
     }
-    public void AddSkillBullet(Skills _bulletSkill)
+    public void AddSkillBullet(Skills _bulletSkill,int skillLevel)
     {
         bool foundEmptyPosition = false;
         int emptyPosition = 0;
@@ -59,7 +59,7 @@ public class BulletCase : MonoBehaviour
             newBullet.transform.localPosition = Vector3.zero;
             newBullet.transform.localEulerAngles = Vector3.zero;
             bulletsInside.Add(newBullet);
-            newBullet.GetComponent<ShowBullet>().SetBullet(0, _bulletSkill, true);
+            newBullet.GetComponent<ShowBullet>().SetBullet(0, _bulletSkill,skillLevel, true);
             revolverParts[emptyPosition].GetComponent<RevolverParts>()._bulletInside = newBullet.GetComponent<ShowBullet>();
             NewShootingScript.instance.bulletsInside.Add(newBullet.GetComponent<ShowBullet>());
             Debug.Log("AddedBullet");
@@ -99,7 +99,7 @@ public class BulletCase : MonoBehaviour
             newBullet.transform.localPosition = Vector3.zero;
             newBullet.transform.localEulerAngles = Vector3.zero;
             bulletsInside.Add(newBullet);
-            newBullet.GetComponent<ShowBullet>().SetBullet(power, Skills.BiggerBullets, false);
+            newBullet.GetComponent<ShowBullet>().SetBullet(power, Skills.BiggerBullets,0, false);
             revolverParts[emptyPosition].GetComponent<RevolverParts>()._bulletInside = newBullet.GetComponent<ShowBullet>();
             NewShootingScript.instance.bulletsInside.Add(newBullet.GetComponent<ShowBullet>());
             fullData[emptyPosition] = 1;

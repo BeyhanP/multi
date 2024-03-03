@@ -10,6 +10,7 @@ public class ShowBullet : MonoBehaviour
     public float _power;
     public int skillNumber;
     public TextMeshPro _powerText;
+    public TextMeshPro _multiLevelTexter;
     public Skills skill;
     public int _skillLevel;
     private IEnumerator DropAnimation()
@@ -29,10 +30,11 @@ public class ShowBullet : MonoBehaviour
         yield return new WaitForSeconds(.2f + Time.deltaTime);
         transform.DOScale(currentScale, .2f);
     }
-    public void SetBullet(float power,Skills _skill,bool gotSkill=false)
+    public void SetBullet(float power,Skills _skill,int skillLevel,bool gotSkill=false)
     {
         skillBullet = gotSkill;
         skill = _skill;
+        _skillLevel = skillLevel;
         if (!skillBullet)
         {
             //AnimationParter
@@ -50,6 +52,10 @@ public class ShowBullet : MonoBehaviour
             {
 
                 StartCoroutine(DropAnimation());
+            }
+            if (_skill == Skills.Multi)
+            {
+                _multiLevelTexter.text = "x" + (skillLevel + 2).ToString();
             }
             _power = 0;
             _powerText.gameObject.SetActive(false);

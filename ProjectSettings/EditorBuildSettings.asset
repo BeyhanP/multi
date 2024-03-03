@@ -4,5 +4,32 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Elephant/elephant_scene.unity
+    guid: 47a686e3b898646ae802a7832a649176
+  - enabled: 1
+    path: Assets/Scenes/Level 2.unity
+    guid: 5cfb7a0db2b064beeb30b23ddd60c20b
+  - enabled: 1
+    path: Assets/Scenes/Level 3.unity
+    guid: c3fb82956aac342f4a6e3f7bbb0166ee
+  - enabled: 1
+    path: Assets/Scenes/Level 4.unity
+    guid: fed8f8f3ac1794c95a2a00734f687188
+  - enabled: 1
+    path: Assets/Scenes/Level 5.unity
+    guid: 4499c408bd4d64c82ab7dc5c06df6eba
+  - enabled: 1
+    path: Assets/Scenes/Level 6.unity
+    guid: e080dc691f4f9415aa498ca67e5e9dd2
+  - enabled: 1
+    path: Assets/Scenes/Level 7.unity
+    guid: a84551996d4e5495582d29340d0d88b9
+  - enabled: 1
+    path: Assets/Scenes/Level 8.unity
+    guid: 470bf752de8394599bf9ba415af7b4a8
+  - enabled: 1
+    path: Assets/Scenes/Level 9.unity
+    guid: 43a6104a050ae4d69a327db398b23f0f
   m_configObjects: {}

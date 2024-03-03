@@ -60,6 +60,7 @@ public class SingleDoorScript : MonoBehaviour
     public int bulletAmounter;
     public GameObject _bulletDoorBulletInsider;
     private Vector3 bulletStartScaler = new Vector3();
+    public TextMeshPro multiLevelTexter;
     [SerializeField] TextMeshPro _lockTexter;
     private void Awake()
     {
@@ -212,6 +213,10 @@ public class SingleDoorScript : MonoBehaviour
                     skillSprites[i].SetActive(false);
                 }
             }
+            if (_doorSkill == Skills.Multi)
+            {
+                multiLevelTexter.text = "x" + (currentLevel + 2).ToString();
+            }
         }
     }
     private void LockHit()
@@ -295,6 +300,10 @@ public class SingleDoorScript : MonoBehaviour
                 skillBalls[i].transform.DOScale(skillBallsStartScales[i] * 1.2f, .1f);
                 skillBalls[i].transform.DOScale(skillBallsStartScales[i], .1f).SetDelay(.1f + Time.deltaTime);
             }
+        }
+        if (_doorSkill == Skills.Multi)
+        {
+            multiLevelTexter.text = "x" + (currentLevel + 2).ToString();
         }
     }
     public void BulletDoorHitter(float hitPower)
@@ -390,7 +399,7 @@ public class SingleDoorScript : MonoBehaviour
                         break;
                     case DoorType.SkillDoor:
                         //StartCoroutine(ShootingScript.instance.GetSkillBullet(_bulletPosition, _doorSkill));
-                        NewShootingScript.instance.GetSkillBullet(_doorSkill);
+                        NewShootingScript.instance.GetSkillBullet(_doorSkill,currentLevel);
                         break;
                     case DoorType.BulletDoor:
                         for(int i = 0; i < bulletAmounter; i++)
