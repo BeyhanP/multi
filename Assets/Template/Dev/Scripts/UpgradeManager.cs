@@ -31,7 +31,6 @@ public class UpgradeManager : MonoBehaviour
     private void Awake()
     {
         UpgradePrices up = new UpgradePrices();
-        PlayerPrefs.SetFloat("Coin", 100000);
         up = JsonUtility.FromJson<UpgradePrices>(RemoteConfig.GetInstance().Get("UpgradePrices", defaultUpgradePrices.text));
         for (int i = 0; i < upgrades.Count; i++)
         {
