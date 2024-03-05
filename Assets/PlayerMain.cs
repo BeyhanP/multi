@@ -13,12 +13,21 @@ public class PlayerMain : MonoBehaviour
     public static PlayerMain instance;
     private void Awake()
     {
-        //AddPower(PlayerPrefs.GetFloat("StartCapacityPower"));
-        StartAddPower(PlayerPrefs.GetFloat("StartCapacityPower"));
         instance = this;
+    }
+    private void Start()
+    {
+        PowerNeededForNewCapacity.Clear();
+        GameManager gm = FindObjectOfType<GameManager>();
+        for (int i = 0; i < gm._specs.miniGamePowers.Count; i++)
+        {
+            PowerNeededForNewCapacity.Add(gm._specs.miniGamePowers[i]);
+        }
+        StartAddPower(PlayerPrefs.GetFloat("StartCapacityPower"));
     }
     public void StartAddPower(float addAmounter)
     {
+        Debug.Log("PowerAdded");
         currentPower += addAmounter;
         int oldLevel = currentLevel;
         int smallestLevel = 0;
@@ -33,19 +42,20 @@ public class PlayerMain : MonoBehaviour
         if (currentLevel >= PowerNeededForNewCapacity.Count - 1)
         {
             int dif = currentLevel - oldLevel;
-            Debug.Log(dif + "Difference");
             for (int i = 0; i < dif; i++)
             {
+                
                 FindObjectOfType<NewShootingScript>().AddPart();
             }
+            Debug.Log("Returning");
             return;
         }
+        Debug.Log("FillCalled");
         float fillAmount = currentPower - (float)PowerNeededForNewCapacity[currentLevel];
-        Debug.Log(currentLevel+"CurrentLeveler");
         fillAmount /= (float)PowerNeededForNewCapacity[currentLevel + 1] - (float)PowerNeededForNewCapacity[currentLevel];
         fillImager.DOFillAmount(fillAmount, .2f);
+        Debug.Log("FillAmounter"+fillAmount);
         int difference = currentLevel - oldLevel;
-        Debug.Log(difference + "Difference");
         for (int i = 0; i < difference; i++)
         {
             FindObjectOfType<NewShootingScript>().AddPart();

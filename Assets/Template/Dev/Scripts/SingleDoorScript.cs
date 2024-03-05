@@ -68,17 +68,7 @@ public class SingleDoorScript : MonoBehaviour
         {
             skillBallsStartScales.Add(skillBalls[i].transform.localScale);
         }
-        if (_doorType == DoorType.SkillDoor)
-        {
-            currentPower = powerNeededForNewLevelSkill[startLevel];
-            GetHit(0);
-        }
-        else if (_doorType == DoorType.BulletDoor)
-        {
-           bulletStartScaler = _bulletDoorBulletInsider.transform.localScale;
-            currentPower = powerNeededForNewBulleter[startLevel];
-            BulletDoorHitter(0);
-        }
+        
         foreach (SingleDoorScript sds in FindObjectsOfType<SingleDoorScript>())
         {
             if (sds.transform.position.z == transform.position.z)
@@ -116,6 +106,38 @@ public class SingleDoorScript : MonoBehaviour
         }
         startScale = transform.localScale;
         objectThrowAmount = (float)lockObjects.Count / (float)lockPower;
+        
+    }
+    private void Start()
+    {
+        powerNeededForNewBulleter.Clear();
+        powerNeededForNewLevelSkill.Clear();
+        GameManager gm = FindObjectOfType<GameManager>();
+        
+
+        
+
+
+        if (_doorType == DoorType.SkillDoor)
+        {
+            for (int i = 0; i < gm._specs.skillDoorPowers.Count; i++)
+            {
+                powerNeededForNewLevelSkill.Add(gm._specs.skillDoorPowers[i]);
+            }
+            currentPower = powerNeededForNewLevelSkill[startLevel];
+            GetHit(0);
+            
+        }
+        else if (_doorType == DoorType.BulletDoor)
+        {
+            for (int i = 0; i < gm._specs.bulletDoorPowers.Count; i++)
+            {
+                powerNeededForNewBulleter.Add(gm._specs.bulletDoorPowers[i]);
+            }
+            bulletStartScaler = _bulletDoorBulletInsider.transform.localScale;
+            currentPower = powerNeededForNewBulleter[startLevel];
+            BulletDoorHitter(0);
+        }
         SetDoorProperties();
     }
     public void ThrowObjects(float hitPower)
@@ -270,6 +292,7 @@ public class SingleDoorScript : MonoBehaviour
     }
     public void GetHit(float hitPower)
     {
+        Debug.Log("SkillHitterer"+ _doorType);
         currentPower += hitPower;
         int smallestLevel = 0;
         for (int i = 0; i < powerNeededForNewLevelSkill.Count; i++)
@@ -308,8 +331,10 @@ public class SingleDoorScript : MonoBehaviour
     }
     public void BulletDoorHitter(float hitPower)
     {
+        Debug.Log("BulletDoorHiitted");
         currentPower += hitPower;
         int smallestLevel = 0;
+
         for (int i = 0; i < powerNeededForNewBulleter.Count; i++)
         {
             if (currentPower >= powerNeededForNewBulleter[i])
@@ -330,6 +355,7 @@ public class SingleDoorScript : MonoBehaviour
             canStamina = true;
         });
         currentLevel = smallestLevel;
+        Debug.Log(smallestLevel + "_SmallestLevel"+ currentLevel+ "_CurrentLeveler");
         _bulletDoorBulletInsider.transform.DOScale(bulletStartScaler * 1.2f, .1f);
         _bulletDoorBulletInsider.transform.DOScale(bulletStartScaler, .1f).SetDelay(.1f + Time.deltaTime);
         bulletPowerTexter.text = (currentLevel + 1).ToString();
@@ -362,7 +388,8 @@ public class SingleDoorScript : MonoBehaviour
             if(_doorType ==DoorType.SkillDoor)
             {
                 GetHit(other.GetComponent<BulletScript>().bulletPower);
-            }else if(_doorType == DoorType.BulletDoor)
+            }
+            else if(_doorType == DoorType.BulletDoor)
             {
                 BulletDoorHitter(other.GetComponent<BulletScript>().bulletPower);
             }
@@ -384,18 +411,22 @@ public class SingleDoorScript : MonoBehaviour
         {
             if (!locked)
             {
+                if (otherDoor != null)
+                {
+                    otherDoor.GetComponent<Collider>().enabled = false;
+                }
                 transform.DOMoveY(transform.position.y - 5, .2f);
                 GetComponent<Collider>().enabled = false;
                 switch (_doorType)
                 {
                     case DoorType.FireRate:
-                        ShootingScript.instance.FireRateUpgrade(amount);
+                        NewShootingScript.instance.FireRateUpgrade(amount);
                         break;
                     case DoorType.FireRange:
-                        ShootingScript.instance.FireRangeUpgrade(amount);
+                        NewShootingScript.instance.FireRangeUpgrade(amount);
                         break;
                     case DoorType.FirePower:
-                        ShootingScript.instance.FirePowerUpgrade(amount);
+                        //ShootingScript.instance.FirePowerUpgrade(amount);
                         break;
                     case DoorType.SkillDoor:
                         //StartCoroutine(ShootingScript.instance.GetSkillBullet(_bulletPosition, _doorSkill));
@@ -421,15 +452,31 @@ public class SingleDoorScript : MonoBehaviour
                 BulletDoorHitter(1);
             }
         }
+
         if (canStamina)
         {
-            if (currentPower > powerNeededForNewLevelSkill[currentLevel])
+            if(_doorType == DoorType.SkillDoor)
             {
-                currentPower -= Time.deltaTime * staminaSpeed;
-                float fillAmount = currentPower - (float)powerNeededForNewLevelSkill[currentLevel];
-                fillAmount /= (float)powerNeededForNewLevelSkill[currentLevel + 1] - (float)powerNeededForNewLevelSkill[currentLevel];
-                fillAmount *= 100;
-                _barRenderer.SetBlendShapeWeight(0, fillAmount);
+                if (currentPower > powerNeededForNewLevelSkill[currentLevel])
+                {
+                    currentPower -= Time.deltaTime * staminaSpeed;
+                    float fillAmount = currentPower - (float)powerNeededForNewLevelSkill[currentLevel];
+                    fillAmount /= (float)powerNeededForNewLevelSkill[currentLevel + 1] - (float)powerNeededForNewLevelSkill[currentLevel];
+                    fillAmount *= 100;
+                    _barRenderer.SetBlendShapeWeight(0, fillAmount);
+                }
+            }
+            else if (_doorType == DoorType.BulletDoor)
+            {
+                if (currentPower > powerNeededForNewBulleter[currentLevel])
+                {
+                    currentPower -= Time.deltaTime * staminaSpeed;
+                    float fillAmount = currentPower - (float)powerNeededForNewBulleter[currentLevel];
+                    fillAmount /= (float)powerNeededForNewBulleter[currentLevel + 1] - (float)powerNeededForNewBulleter[currentLevel];
+                    fillAmount *= 100;
+                    _barRenderer.SetBlendShapeWeight(0, fillAmount);
+                }
+
             }
         }
     }

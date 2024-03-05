@@ -20,7 +20,7 @@ public class CollectableMain : MonoBehaviour
     [SerializeField] List<GameObject> _referenceCubes = new List<GameObject>();
     [SerializeField] List<GameObject> cubesInside = new List<GameObject>();
     [SerializeField] List<CollectableLayers> _collectableLayersInside = new List<CollectableLayers>();
-
+    [SerializeField] List<GameObject> _mainParts = new List<GameObject>();
     [SerializeField] bool getLayers;
     int currentLayerNumber =0;
     public float explodeForce;
@@ -28,12 +28,28 @@ public class CollectableMain : MonoBehaviour
 
     public int collectableAmount;
 
+    int startCollectableNumber;
+    [SerializeField]float startYFloat;
     [SerializeField] TextMeshPro _powerText;
     [SerializeField] float rotShakeAmount;
     private void Awake()
     {
-        for(int i = 0; i < _collectableLayersInside.Count; i++)
+       
+    }
+    private void Start()
+    {
+        collectableAmount = 12;
+        GameManager gm = FindObjectOfType<GameManager>();
+        for (int i = 0; i < _collectableLayersInside.Count; i++)
         {
+            _collectableLayersInside[i]._layerPower = gm._specs.collectableLayerPowers[i];
+            _collectableLayersInside[i]._singlePiecePowerAmount= gm._specs.collectablePowerAdds[i];
+            _collectableLayersInside[i]._mainParent = _mainParts[i].transform;
+            _collectableLayersInside[i]._cubesInside.Clear();
+            for (int c = 0; c < _mainParts[i].transform.childCount; c++)
+            {
+                _collectableLayersInside[i]._cubesInside.Add(_mainParts[i].transform.GetChild(c).gameObject);
+            }
             if (i < collectableAmount)
             {
                 float dropAmountPerPower = (float)_collectableLayersInside[i]._cubesInside.Count / (float)_collectableLayersInside[i]._layerPower;
@@ -45,7 +61,20 @@ public class CollectableMain : MonoBehaviour
                 _collectableLayersInside[i]._layerPower = 0;
             }
         }
+        startCollectableNumber = _collectableLayersInside.Count;
+        startYFloat = _collectableLayersInside[0]._mainParent.transform.localPosition.y;
         SetPowerTexter();
+        for (int i = 0; i < _mainParts.Count; i++)
+        {
+            if (i < _collectableLayersInside.Count)
+            {
+                _mainParts[i].gameObject.SetActive(true);
+            }
+            else
+            {
+                _mainParts[i].gameObject.SetActive(false);
+            }
+        }
     }
     public void SetPowerTexter()
     {
@@ -91,6 +120,7 @@ public class CollectableMain : MonoBehaviour
     }
     public void GetHit(float _addAmount)
     {
+        int oldLayerNumber = currentLayerNumber;
         List<GameObject> _sendPieceLister = new List<GameObject>();
         _collectableLayersInside[currentLayerNumber]._layerPower -= _addAmount;
         _collectableLayersInside[currentLayerNumber]._currentThrowAmount += _collectableLayersInside[currentLayerNumber]._throwAmountPerPower * _addAmount;
@@ -134,6 +164,13 @@ public class CollectableMain : MonoBehaviour
                 StartCoroutine(Noink());
                 _powerText.transform.DOPunchScale(Vector3.one * rotShakeAmount, .25f, 10, 10);
                 nonking = true;
+            }
+        }
+        if (oldLayerNumber != currentLayerNumber)
+        {
+            for(int i = 0; i < _mainParts.Count; i++)
+            {
+                _mainParts[i].transform.DOLocalMoveY(startYFloat - ((currentLayerNumber)* 0.13f),.2f);
             }
         }
         for(int i = 0; i < _sendPieceLister.Count; i++)

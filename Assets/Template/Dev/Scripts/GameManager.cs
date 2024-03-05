@@ -6,6 +6,16 @@ using UnityEngine.SceneManagement;
 using DG.Tweening;
 using TMPro;
 using ElephantSDK;
+
+[System.Serializable]
+public class GameSpec
+{
+    public List<int> miniGamePowers = new List<int>();
+    public List<int> bulletDoorPowers = new List<int>();
+    public List<int> skillDoorPowers = new List<int>();
+    public List<int> collectablePowerAdds = new List<int>();
+    public List<int> collectableLayerPowers = new List<int>();
+}
 public class GameManager : MonoBehaviour
 {
     [Header("Canvas's")]
@@ -24,13 +34,16 @@ public class GameManager : MonoBehaviour
 
     public Transform _collectablePosition;
 
-
+    public TextAsset defaultGameSpecs;
+    public GameSpec _specs;
     public static GameManager instance;
     private void Awake()
     {
         instance = this;
         Application.targetFrameRate = 60;
         Input.multiTouchEnabled = false;
+        _specs = JsonUtility.FromJson<GameSpec>(RemoteConfig.GetInstance().Get("GameSpecs", defaultGameSpecs.text));
+
         RefreshCoinText();
         if (PlayerPrefs.GetInt("Level") == 0)
         {
@@ -43,7 +56,7 @@ public class GameManager : MonoBehaviour
         }
         if (PlayerPrefs.GetInt("LevelPref") != SceneManager.GetActiveScene().buildIndex)
         {
-            //SceneManager.LoadScene(PlayerPrefs.GetInt("LevelPref"));
+            SceneManager.LoadScene(PlayerPrefs.GetInt("LevelPref"));
         }
         Elephant.LevelStarted(PlayerPrefs.GetInt("Level"));
     }

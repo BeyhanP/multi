@@ -12,10 +12,15 @@ public class MiniGameMain : MonoBehaviour
     public TextMeshPro capacityTexter;
     private void Awake()
     {
+        
+    }
+    private void Start()
+    {
         powerNeededForNewLayer.Clear();
-        for(int i = 0; i < FindObjectOfType<PlayerMain>().PowerNeededForNewCapacity.Count; i++)
+        GameManager gm = FindObjectOfType<GameManager>();
+        for (int i = 0; i < gm._specs.miniGamePowers.Count; i++)
         {
-            powerNeededForNewLayer.Add(FindObjectOfType<PlayerMain>().PowerNeededForNewCapacity[i]);
+            powerNeededForNewLayer.Add(gm._specs.miniGamePowers[i]);
         }
         AddPower(PlayerPrefs.GetFloat("StartCapacityPower"));
     }

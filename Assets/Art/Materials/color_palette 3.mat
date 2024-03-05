@@ -8,10 +8,10 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: color_palette 3
-  m_Shader: {fileID: 4800000, guid: 7d42628fba85ccc49b31ca2d1a16f238, type: 3}
-  m_ValidKeywords:
-  - TCP2_DISABLE_WRAPPED_LIGHT
+  m_Shader: {fileID: 4800000, guid: c468355ee64f348d79e64ef29019f8c6, type: 3}
+  m_ValidKeywords: []
   m_InvalidKeywords:
+  - TCP2_DISABLE_WRAPPED_LIGHT
   - TCP2_REFLECTIONS_FRESNEL
   - TCP2_RIM_LIGHTING_LIGHTMASK
   - TCP2_SHADOW_LIGHT_COLOR
@@ -113,6 +113,8 @@ Material:
     - _NormalsUVType: 0
     - _OcclusionChannel: 0
     - _OcclusionStrength: 1
+    - _OutlineAmount: 0.00005
+    - _OutlineByNormal: 1
     - _OutlineLightingType: 0
     - _OutlineLightingTypeURP: 0
     - _OutlineMaxWidth: 1
@@ -135,9 +137,11 @@ Material:
     - _ReflectionMapType: 0
     - _ReflectionSmoothness: 0.5
     - _RenderingMode: 0
+    - _RimAmount: 0.716
     - _RimMax: 1
     - _RimMin: 0.5
     - _RimStrength: 0.5
+    - _RimThreshold: 0.1
     - _ShadowColorLightAtten: 1
     - _SingleIndirectColor: 0
     - _SmoothnessTextureChannel: 0
@@ -154,6 +158,7 @@ Material:
     - _TCP2_RAMPTEXT: 0
     - _TCP2_SPEC_TOON: 0
     - _TCP2_STYLIZED_FRESNEL: 0
+    - _Transparency: 1
     - _UVSec: 0
     - _UseAlphaTest: 0
     - _UseEmission: 0
@@ -171,6 +176,7 @@ Material:
     - _UseSpecular: 0
     - _ZWrite: 1
     m_Colors:
+    - _AmbientColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
     - _BaseColor: {r: 0.9811321, g: 0.9811321, b: 0.9811321, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

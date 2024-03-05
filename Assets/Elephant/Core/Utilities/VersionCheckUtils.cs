@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using UnityEditor;
 using UnityEngine;
 
 namespace ElephantSDK
@@ -10,13 +11,10 @@ namespace ElephantSDK
     // TODO implement external package version checks here
     public class VersionCheckUtils
     {
-        private const string MediationIronSource = "IronSource";
         
         private static VersionCheckUtils _instance;
-        public string AdSdkVersion = "";
-        public string MediationVersion = "";
+        public string GameKitVersion = "";
         public readonly string UnityVersion;
-        public string Mediation = "";
 
         public static VersionCheckUtils GetInstance()
         {
@@ -42,31 +40,20 @@ namespace ElephantSDK
                 foreach (var type in assembly.GetTypes())
                 {
                     var typeFullName = type.FullName;
+
                     if (!string.IsNullOrEmpty(typeFullName) &&
-                        typeFullName.Equals("RollicGames.Advertisements.Version"))
+                        typeFullName.Equals("RollicGames.Advertisements.VersionGameKit"))
                     {
-                        var fieldInfo = type.GetField("SDK_VERSION",
+                        var fieldInfo = type.GetField("GAMEKIT_VERSION",
                             BindingFlags.NonPublic | BindingFlags.Static);
 
                         if (fieldInfo != null)
                         {
-                            AdSdkVersion = fieldInfo.GetValue(null).ToString();    
+                            GameKitVersion = fieldInfo.GetValue(null).ToString();    
                         }
                         
                     }
-
-                    if (string.IsNullOrEmpty(typeFullName) || !typeFullName.Equals("IronSource")) continue;
-                    var method = type.GetMethod("pluginVersion");
-
-                    if (method == null) continue;
-                    var result = method.Invoke(type, new object[] { });
-                    MediationVersion = result.ToString();
-                    MediationVersion = MediationVersion.Split('-')[0];
-                    Mediation = MediationIronSource;
                 }
-                
-
-             
             }
             catch (Exception e)
             {

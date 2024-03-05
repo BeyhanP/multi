@@ -63,6 +63,14 @@ public class NewShootingScript : MonoBehaviour
         PlayerPrefs.SetInt("RateUpgradedAmount", PlayerPrefs.GetInt("RateUpgradedAmount") + 1);
         fireRate = RemoteConfig.GetInstance().GetFloat("StartRate", 1) + PlayerPrefs.GetInt("RateUpgradedAmount") * RemoteConfig.GetInstance().GetFloat("UpgradeRateIncAmount", .02f);
     }
+    public void FireRateUpgrade(float amount)
+    {
+        fireRate += RemoteConfig.GetInstance().GetFloat("RateIncAmount", .01f) * amount;
+    }
+    public void FireRangeUpgrade(float amount)
+    {
+        currentRange+= RemoteConfig.GetInstance().GetFloat("RangeIncAmount", .01f) * amount;
+    }
     public void IncomeMultiplierUpgrade()
     {
         PlayerPrefs.SetFloat("IncomeMultiplier", PlayerPrefs.GetFloat("IncomeMultiplier") + .1f);

@@ -25,7 +25,7 @@ namespace ElephantSDK
         public string device_cpu_arch;
         public string os_version;
         public string sdk_version;
-        public string ad_sdk_version;
+        public string gamekit_version;
         public string device_model;
         public string user_tag;
         public long create_date;
@@ -33,18 +33,19 @@ namespace ElephantSDK
         public long real_session_id;
         public float real_time_since_start_up;
         public long first_install_time;
+        public long install_time;
         public string timezone_offset = "";
         public string user_id;
         public string client_id;
         public string consent_status = "";
         public int order = 0;
         public List<MirrorData> mirror_data;
-        public string adjustId = "";
-        [FormerlySerializedAs("networName")] public string networkName = "";
-        public string campaignName = "";
-        public string adGroupName = "";
-        public string creativeName = "";
-        public double uaCost;
+        public string adid = "";
+        public string network_name = "";
+        public string campaign_name = "";
+        public string adgroup_name = "";
+        public string creative_name = "";
+        public double ua_cost;
 
         public void FillBaseData(long sessionID)
         {
@@ -57,24 +58,25 @@ namespace ElephantSDK
                 this.lang = Utils.GetISOCODE(Application.systemLanguage);
                 this.user_tag = RemoteConfig.GetInstance().GetTag();
                 this.os_version = SystemInfo.operatingSystem;
-                this.sdk_version = ElephantVersion.SDK_VERSION;
-                this.ad_sdk_version = VersionCheckUtils.GetInstance().AdSdkVersion;
+                this.sdk_version = VersionCheckUtils.GetInstance().GameKitVersion;
+                this.gamekit_version = VersionCheckUtils.GetInstance().GameKitVersion;
                 this.device_model = SystemInfo.deviceModel;
                 this.create_date = Utils.Timestamp();
                 this.session_id = sessionID;
                 this.real_session_id = ElephantCore.Instance.realSessionId;
                 this.real_time_since_start_up = Time.realtimeSinceStartup;
                 this.first_install_time = ElephantCore.Instance.firstInstallTime;
+                this.install_time = ElephantCore.Instance.installTime;
                 this.user_id = ElephantCore.Instance.userId;
                 this.client_id = ElephantCore.Instance.clientId;
                 this.consent_status = ElephantCore.Instance.consentStatus;
                 this.mirror_data = ElephantCore.Instance.mirrorData;
-                this.adjustId = ElephantCore.Instance.adjustId;
-                this.networkName = ElephantCore.Instance.networkName;
-                this.campaignName = ElephantCore.Instance.campaignName;
-                this.adGroupName = ElephantCore.Instance.adGroupName;
-                this.creativeName = ElephantCore.Instance.creativeName;
-                this.uaCost = ElephantCore.Instance.uaCost;
+                this.adid = ElephantCore.Instance.adjustId;
+                this.network_name = ElephantCore.Instance.networkName;
+                this.campaign_name = ElephantCore.Instance.campaignName;
+                this.adgroup_name = ElephantCore.Instance.adGroupName;
+                this.creative_name = ElephantCore.Instance.creativeName;
+                this.ua_cost = ElephantCore.Instance.uaCost;
 
                 this.order = ElephantCore.Instance.eventOrder;
                 ElephantCore.Instance.eventOrder++;

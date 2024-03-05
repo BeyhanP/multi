@@ -7,6 +7,8 @@ namespace ElephantSDK
     {
         public string type;
         public int level;
+        public string level_id;
+        public long level_time;
         
         public string  key_string1;
         public string  value_string1;

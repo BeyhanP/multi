@@ -54,7 +54,7 @@ namespace ElephantSDK
                 PlayGame();
                 ElephantLog.Log("COMPLIANCE", "ShowToSAndPPDialog");
 #elif UNITY_ANDROID
-                 ElephantAndroid.ShowConsentDialog("CONTENT", tos.content, tos.consent_text_action_button, tos.privacy_policy_text,
+                 ElephantAndroid.ShowConsentDialogOnUiThread("CONTENT", tos.content, tos.consent_text_action_button, tos.privacy_policy_text,
                     tos.privacy_policy_url, tos.terms_of_service_text, tos.terms_of_service_url);
 #elif UNITY_IOS
                 ElephantIOS.showPopUpView("CONTENT", tos.content, tos.consent_text_action_button, tos.privacy_policy_text,

@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d20837e5ecd714515802b3c4d7db9e35, type: 3}
+  m_Name: ElephantSettings
+  m_EditorClassIdentifier: 
+  GameID: 61ff8a14cdcbf612fd5ea2c1fd259ede46edd15024971ba6c5137772f94e92c7
+  GameSecret: 8f9744fc10bd5dd405e15b30281caae21fdb3b7fb7deb2799358705b6a72042d

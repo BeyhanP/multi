@@ -81,15 +81,19 @@ public class ElephantAndroid
         return adId;
     }
     
-    public static void ShowConsentDialog(string dialogSubviewType, string text, string buttonTitle, string privacyPolicyText, 
-            string privacyPolicyUrl, string termsOfServiceText, string termsOfServiceUrl, string dataRequestText = "", string dataRequestUrl = "")
+    public static void ShowConsentDialogOnUiThread(string dialogSubviewType, string text, string buttonTitle, string privacyPolicyText, 
+        string privacyPolicyUrl, string termsOfServiceText, string termsOfServiceUrl, string dataRequestText = "", string dataRequestUrl = "")
+    {
+        AndroidJavaRunnable runnable = () =>
         {
-            
             if (elephantController != null)
             {
                 elephantController.Call("showConsent", dialogSubviewType, text, buttonTitle, privacyPolicyText, privacyPolicyUrl, termsOfServiceText, termsOfServiceUrl, dataRequestText, dataRequestUrl);
             }
-        }
+        };
+
+        currentActivity.Call("runOnUiThread", runnable);
+    }
 
     public static void ShowCcpaDialog(string action, string title, string content, string privacyPolicyText, 
         string privacyPolicyUrl, string declineActionButtonText, string agreeActionButtonText, string backToGameActionButtonText)
@@ -101,9 +105,27 @@ public class ElephantAndroid
         }
     }
     
-    public static void ShowSettingsView(string dialogSubviewType, string actions)
+    public static void ShowReturningUserDialog(string action, string title, string content, string privacyPolicyText, 
+        string privacyPolicyUrl, string backToGameButtonText)
     {
-        elephantController.Call("showSettingsView", dialogSubviewType, actions);
+        if (elephantController != null)
+        {
+            elephantController.Call("showReturningUserDialog", action, title, content, privacyPolicyText, 
+                privacyPolicyUrl, backToGameButtonText);
+        }
+    }
+    
+    public static void ShowSettingsViewOnUiThread(string dialogSubviewType, string actions)
+    {
+        AndroidJavaRunnable runnable = new AndroidJavaRunnable(() =>
+        {
+            if (elephantController != null)
+            {
+                elephantController.Call("showSettingsView", dialogSubviewType, actions);
+            }
+        });
+        
+        currentActivity.Call("runOnUiThread", runnable);
     }
 
     public static void showBlockedDialog(string title, string content, string warningContent, string buttonTitle)
@@ -116,10 +138,15 @@ public class ElephantAndroid
 
     public static void ShowNetworkOfflineDialog(string content, string buttonTitle)
     {
-        if (elephantController != null)
+        AndroidJavaRunnable runnable = new AndroidJavaRunnable(() =>
         {
-            elephantController.Call("showNetworkOfflineDialog", content, buttonTitle);
-        }
+            if (elephantController != null)
+            {
+                elephantController.Call("showNetworkOfflineDialog", content, buttonTitle);
+            }
+        });
+
+        currentActivity.Call("runOnUiThread", runnable);
     }
     
     public static int GameMemoryUsage()
@@ -140,6 +167,16 @@ public class ElephantAndroid
             memoryUsagePercentage = elephantController.Call<int>("gameMemoryUsagePercentage");
         }
         return memoryUsagePercentage;
+    }
+
+    public static float GetBatteryLevel()
+    {
+        float batteryLevel = 0;
+        if (elephantController != null)
+        {
+            batteryLevel = elephantController.Call<float>("getBatteryLevel");
+        }
+        return batteryLevel;
     }
     
     public static long GetFirstInstallTime()

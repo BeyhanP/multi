@@ -13,6 +13,8 @@ namespace ElephantSDK
         public int systemMemory;
         public int memoryUsage;
         public int memoryUsagePercentage;
+        public float sessionStartBatteryLevel;
+        public float sessionEndBatteryLevel;
         
         private MonitoringData()
         {
@@ -25,6 +27,9 @@ namespace ElephantSDK
             systemMemory = SystemInfo.systemMemorySize;
             memoryUsage = MonitoringUtils.GetInstance().GetMemoryUsage();
             memoryUsagePercentage = MonitoringUtils.GetInstance().GetMemoryUsagePercentage();
+
+            sessionStartBatteryLevel = MonitoringUtils.GetInstance().GetSessionStartBatteryLevel();
+            sessionEndBatteryLevel = MonitoringUtils.GetInstance().GetSessionEndBatteryLevel();
             
             MonitoringUtils.GetInstance().Flush();
         }

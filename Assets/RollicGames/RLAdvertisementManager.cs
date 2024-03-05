@@ -8,7 +8,6 @@ using UnityEngine;
 using UnityEngine.Networking;
 using com.adjust.sdk;
 using ElephantSDK;
-using RollicGames.Advertisements.Ads;
 using RollicGames.Advertisements.Model;
 using UnityEngine;
 #if UNITY_IOS && !UNITY_EDITOR
@@ -241,7 +240,6 @@ namespace RollicGames.Advertisements
             }
             
             yield return new WaitForSecondsRealtime(1.0f);
-            Elephant.AdEvent("OnSdkInitializedEvent", sdkConfiguration.ToString());
             Elephant.Event("OnSdkInitializedEvent", -1,  null);
             var evnt = OnRollicAdsSdkInitializedEvent;
             evnt?.Invoke();
@@ -257,7 +255,6 @@ namespace RollicGames.Advertisements
             interstitialRequestTimerIndex = 0;
 
 
-            Elephant.AdEvent("OnInterstitialLoadedEvent", adUnitId);
             var evnt = OnRollicAdsInterstitialLoadedEvent;
             evnt?.Invoke(adInfo.NetworkName);
         }
@@ -267,7 +264,6 @@ namespace RollicGames.Advertisements
             _isInterstitialReady = false;
             StartCoroutine(RequestInterstitialAgain());
             IronSourceError error = new IronSourceError(errorInfo.MediatedNetworkErrorCode, errorInfo.Message);
-            Elephant.AdEvent("OnInterstitialFailedEvent", adUnitId, error.getDescription());
             var evnt = OnRollicAdsInterstitialFailedEvent;
             evnt?.Invoke(error);
         }
@@ -282,7 +278,6 @@ namespace RollicGames.Advertisements
 
             RequestInterstitial(_interstitialAdUnit);
 
-            Elephant.AdEvent("OnInterstitialShownEvent", adUnitId);
             var evnt = OnRollicAdsInterstitialShownEvent;
             evnt?.Invoke();
         }
@@ -319,7 +314,6 @@ namespace RollicGames.Advertisements
             ChangeButtonAvailability(true);
             rewardedRequestTimerIndex = 0;
 
-            Elephant.AdEvent("OnRewardedVideoLoadedEvent", adUnitId);
             var evnt = OnRollicAdsRewardedVideoLoadedEvent;
             evnt?.Invoke(adInfo.NetworkName);
         }
@@ -329,7 +323,6 @@ namespace RollicGames.Advertisements
             ChangeButtonAvailability(false);
             StartCoroutine(RequestRewardedAgain());
 
-            Elephant.AdEvent("OnRewardedVideoFailedEvent", adUnitId, errorInfo.Message);
             var evnt = OnRollicAdsRewardedVideoFailedEvent;
             evnt?.Invoke(adUnitId, errorInfo.Message);
         }
@@ -339,14 +332,12 @@ namespace RollicGames.Advertisements
             _isRewardAvailable = false;
             ChangeButtonAvailability(false);
          
-            Elephant.AdEvent("OnRewardedVideoShownEvent", adUnitId);
             var evnt = OnRollicAdsRewardedVideoShownEvent;
             evnt?.Invoke();
         }
         
         private void OnRewardedVideoClickedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
         {
-            Elephant.AdEvent("OnRewardedVideoClickedEvent", adUnitId);
             var evnt = OnRollicAdsRewardedVideoClickedEvent;
             evnt?.Invoke();
         }
@@ -356,7 +347,6 @@ namespace RollicGames.Advertisements
             RequestRewardedAd(adUnitId);
             CheckReward();
             
-            Elephant.AdEvent("OnRewardedVideoClosedEvent", adUnitId);
             var evnt = OnRollicAdsRewardedVideoClosedEvent;
             evnt?.Invoke();
         }
@@ -367,7 +357,6 @@ namespace RollicGames.Advertisements
             rewardedAdResultCallback?.Invoke(RLRewardedAdResult.Failed);
             RequestRewardedAd(adUnitId);
             
-            Elephant.AdEvent("OnRewardedVideoFailedToPlayEvent", adUnitId, errorInfo.Message);
             var evnt = OnRollicAdsRewardedVideoFailedToPlayEvent;
             evnt?.Invoke();
         }
@@ -376,7 +365,6 @@ namespace RollicGames.Advertisements
         {
             _isRewardAvailable = true;
             
-            Elephant.AdEvent("OnRewardedVideoReceivedRewardEvent", adUnitId);
             var evnt = OnRollicAdsRewardedVideoReceivedRewardEvent;
             evnt?.Invoke(adInfo.NetworkName);
         }
@@ -389,7 +377,6 @@ namespace RollicGames.Advertisements
         {
             bannerRequestTimerIndex = 0;
             
-            Elephant.AdEvent("OnAdLoadedEvent", adUnitId);
             var evnt = OnRollicAdsAdLoadedEvent;
             evnt?.Invoke();
 
@@ -403,28 +390,24 @@ namespace RollicGames.Advertisements
         {
             StartCoroutine(RequestBannerAgain());
             
-            Elephant.AdEvent("OnAdFailedEvent", adUnitId, errorInfo.Message);
             var evnt = OnRollicAdsAdFailedEvent;
             evnt?.Invoke(errorInfo.Message);
         }
         
         private void OnAdClickedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
         {
-            Elephant.AdEvent("OnAdClickedEvent", adUnitId);
             var evnt = OnRollicAdsAdClickedEvent;
             evnt?.Invoke();
         }
         
         private void OnAdCollapsedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
         {
-            Elephant.AdEvent("OnAdCollapsedEvent", adUnitId);
             var evnt = OnRollicAdsAdCollapsedEvent;
             evnt?.Invoke(adInfo.NetworkName);
         }
 
         private void OnAdExpandedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
         {
-            Elephant.AdEvent("OnAdExpandedEvent", adUnitId);
             var evnt = OnRollicAdsAdExpandedEvent;
             evnt?.Invoke(adInfo.NetworkName);
         }
@@ -478,7 +461,6 @@ namespace RollicGames.Advertisements
 
         private void RequestRewardedAd(string adUnitId)
         {
-            Elephant.AdEvent("Rollic_RequestRewardedAd", adUnitId);
             MaxSdk.LoadRewardedAd(adUnitId);
         }
 
@@ -493,7 +475,6 @@ namespace RollicGames.Advertisements
         {
             if (!IsMediationReady()) return;
             
-            Elephant.AdEvent("Rollic_showRewardedVideo", _rewardedVideoAdUnit);
             MaxSdk.ShowRewardedAd(_rewardedVideoAdUnit);
         }
 
@@ -506,7 +487,6 @@ namespace RollicGames.Advertisements
         {
             if (!IsMediationReady()) return;
             
-            Elephant.AdEvent("Rollic_loadBanner");
             StartCoroutine(loadBannerAsync());
 
             _isBannerAutoShowEnabled = autoShow;
@@ -583,7 +563,6 @@ namespace RollicGames.Advertisements
 
         private void RequestInterstitial(string adUnitId)
         {
-            Elephant.AdEvent("Rollic_RequestInterstitial", adUnitId);
             MaxSdk.LoadInterstitial(adUnitId);
         }
         
@@ -599,13 +578,7 @@ namespace RollicGames.Advertisements
 
         public void showInterstitial()
         {
-            Elephant.AdEvent("Rollic_showInterstitial", _interstitialAdUnit);
             MaxSdk.ShowInterstitial(_interstitialAdUnit);
-        }
-        
-        public void ShowInterstitial2()
-        {
-            InterstitialDisplayManager.GetInstance().ShowInterstitial();
         }
 
         #endregion

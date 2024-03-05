@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ElephantSDK
@@ -13,25 +14,23 @@ namespace ElephantSDK
         public static event Action OnLevelCompleted;
         public static void Init(bool isOldUser = false, bool gdprSupported = false)
         {
-            ElephantCore.Instance.Init(isOldUser, gdprSupported);
+            ElephantCore.Instance.Init();
         }
         
+        public static IEnumerator ResetSoundWithDelay()
+        {
+            if (!ElephantCore.Instance.isSoundFixEnabled)
+                yield break;
+
+            yield return new WaitForSeconds(3);
+            AudioSettings.Reset(AudioSettings.GetConfiguration());
+        }
+
         public static void ShowComplianceDialog()
         {
             ElephantCore.Instance.PinRequest();
         }
 
-        public static bool UserGDPRConsent()
-        {
-            if (ElephantCore.Instance == null)
-            {
-                Debug.LogWarning("Elephant SDK isn't working correctly, make sure you put Elephant prefab into your first scene..");
-                return false;
-            }
-
-            return ElephantCore.Instance.UserGDPRConsent();
-        }
-        
         public static void ShowSupportView(string subject, string body)
         {
             subject = Utils.ReplaceEscapeCharsForUrl(subject);
@@ -57,12 +56,12 @@ namespace ElephantSDK
 
             ElephantCore.Instance.IsIapBanned(callback);
         }
-        
+
         public static void VerifyPurchase(IapVerifyRequest request, Action<bool> callback)
         {
             if (ElephantCore.Instance == null)
             {
-                ElephantLog.LogError("<ELEPHANT>","Elephant SDK isn't working correctly, make sure you put Elephant prefab into your first scene..");
+                ElephantLog.LogError("<ELEPHANT>", "Elephant SDK isn't working correctly, make sure you put Elephant prefab into your first scene..");
                 return;
             }
 
@@ -81,56 +80,74 @@ namespace ElephantSDK
 #elif UNITY_ANDROID
             ElephantAndroid.showAlertDialog(title, message);
 #else
-            Debug.LogError(message); 
+            Debug.LogError(message);
 #endif
         }
 
         public static void LevelStarted(int level, Params parameters = null)
         {
-            MonitoringUtils.GetInstance().SetCurrentLevel(level);
-            CustomEvent(LEVEL_STARTED, level, parameters);
+            MonitoringUtils.GetInstance().SetCurrentLevel(level, level.ToString());
+
+            CustomEvent(LEVEL_STARTED, level, originalLevelId: level.ToString(), param: parameters);
         }
 
         public static void LevelCompleted(int level, Params parameters = null)
         {
-            //EZGI : LevelCompleted burada rollic ads'e event atalım.
-            CustomEvent(LEVEL_COMPLETED, level, parameters);
-            if (OnLevelCompleted != null)
-            {
-                var evnt = OnLevelCompleted;
-                evnt.Invoke();
-            }
+            var currentLevel = MonitoringUtils.GetInstance().GetCurrentLevel();
+            var currentTime = Utils.Timestamp();
+            var levelTime = currentTime - currentLevel.level_time;
+
+            CustomEvent(LEVEL_COMPLETED, level, level.ToString(), levelTime, parameters);
+
+            if (OnLevelCompleted == null) return;
+            var evnt = OnLevelCompleted;
+            evnt?.Invoke();
         }
 
         public static void LevelFailed(int level, Params parameters = null)
         {
-            CustomEvent(LEVEL_FAILED, level, parameters);
+            var currentLevel = MonitoringUtils.GetInstance().GetCurrentLevel();
+            var currentTime = Utils.Timestamp();
+            var levelTime = currentTime - currentLevel.level_time;
+
+            CustomEvent(LEVEL_FAILED, level, originalLevelId: level.ToString(), levelTime: levelTime, param: parameters);
         }
 
         public static void Event(string type, int level, Params parameters = null)
         {
-            CustomEvent(type, level, parameters);
+            CustomEvent(type, level, param: parameters);
         }
 
-        public static void AdEvent(string type, string adUnitId = "", string errorCode = "")
-        {
-            if (!AdConfig.GetInstance().ad_callback_logs) return;
-            
-            Params param = Params.New();
-            if (!string.IsNullOrEmpty(adUnitId)) param.Set("adUnitId", adUnitId);
-            if (!string.IsNullOrEmpty(errorCode)) param.Set("error", errorCode);
-                
-            CustomEvent("ads_sdk_" + type, -1, param);
-        }
-        
         public static void AdEventV2(string type, string json)
         {
-            if (!AdConfig.GetInstance().ad_event_enabled) return;
-            
+            if (!AdConfig.GetInstance().ad_callback_logs) return;
+
             var param = Params.New();
             param.CustomString(json);
-                
-            CustomEvent("AdEvent_" + type, -1, param);
+
+            CustomEvent("AdEvent_" + type, -1, param: param);
+        }
+
+        public static void RewardedEvent(string eventType, ElephantLevel level, string type, string source, string item, string adUuid, int result = -1, string mediationInfo = "")
+        {
+            var parameters = Params.New()
+                .Set("ad_placement_category", type)
+                .Set("ad_placement_source", source)
+                .Set("ad_placement_item", item)
+                .Set("mediation_info", mediationInfo + "|" + adUuid)
+                .Set("result", result);
+
+            CustomEvent(eventType, level.level, originalLevelId: level.original_level, param: parameters);
+        }
+
+        public static void InterstitialEvent(string eventType, ElephantLevel level, string source, string adUuid, int result = -1, string mediationInfo = "")
+        {
+            var parameters = Params.New()
+                .Set("ad_placement_source", source)
+                .Set("mediation_info", mediationInfo + "|" + adUuid)
+                .Set("result", result);
+
+            CustomEvent(eventType, level.level, originalLevelId: level.original_level, param: parameters);
         }
 
         public static void Transaction(string type, int level, long amount, long finalAmount, string source)
@@ -140,14 +157,14 @@ namespace ElephantSDK
                 Debug.LogWarning("Elephant SDK isn't working correctly, make sure you put Elephant prefab into your first scene..");
                 return;
             }
-            
+
             var t = TransactionData.CreateTransactionData();
             t.type = type;
             t.level = level;
             t.amount = amount;
             t.final_amount = finalAmount;
             t.source = source;
-            
+
             var req = new ElephantRequest(ElephantCore.TRANSACTION_EP, t);
             ElephantCore.Instance.AddToQueue(req);
         }
@@ -166,7 +183,7 @@ namespace ElephantSDK
             var req = new ElephantRequest(ElephantCore.AD_REVENUE_EP, adRevenueRequest);
             ElephantCore.Instance.AddToQueue(req);
         }
-        
+
         public static void MediationAdRevenueEvent(string mediationRevenueData)
         {
             if (ElephantCore.Instance == null)
@@ -180,7 +197,7 @@ namespace ElephantSDK
             var req = new ElephantRequest(ElephantCore.AD_REVENUE_EP, adRevenueRequest);
             ElephantCore.Instance.AddToQueue(req);
         }
-        
+
         // For IS integrated apps.
         public static void IronsourceAdRevenueEvent(string ironsourceRevenueData)
         {
@@ -196,7 +213,7 @@ namespace ElephantSDK
             ElephantCore.Instance.AddToQueue(req);
         }
 
-        private static void CustomEvent(string type, int level, Params param = null)
+        private static void CustomEvent(string type, int level, string originalLevelId = "", long levelTime = 0, Params param = null)
         {
             if (ElephantCore.Instance == null)
             {
@@ -207,6 +224,8 @@ namespace ElephantSDK
             var ev = EventData.CreateEventData();
             ev.type = type;
             ev.level = level;
+            ev.level_id = originalLevelId;
+            ev.level_time = levelTime;
 
             if (param != null)
             {
@@ -224,7 +243,7 @@ namespace ElephantSDK
 #elif UNITY_IOS
                     ElephantIOS.showSettingsView("LOADING", "");
 #elif UNITY_ANDROID
-                    ElephantAndroid.ShowSettingsView("LOADING", "");
+                    ElephantAndroid.ShowSettingsViewOnUiThread("LOADING", "");
 #endif
 
             ElephantCore.Instance.GetSettingsContent(response =>
@@ -238,7 +257,7 @@ namespace ElephantSDK
 #elif UNITY_IOS
                     ElephantIOS.showSettingsView("CONTENT", responseString);
 #elif UNITY_ANDROID
-                    ElephantAndroid.ShowSettingsView("CONTENT", responseString);
+                    ElephantAndroid.ShowSettingsViewOnUiThread("CONTENT", responseString);
 #endif
                 }
                 else
@@ -248,9 +267,9 @@ namespace ElephantSDK
 #elif UNITY_IOS
                     ElephantIOS.showSettingsView("ERROR", "");
 #elif UNITY_ANDROID
-                    ElephantAndroid.ShowSettingsView("ERROR", "");
+                    ElephantAndroid.ShowSettingsViewOnUiThread("ERROR", "");
 #endif
-                    
+
                     Debug.Log("Settings Error: " + response.responseCode + " " + response.errorMessage);
                 }
             }, s =>
@@ -260,12 +279,13 @@ namespace ElephantSDK
 #elif UNITY_IOS
                     ElephantIOS.showSettingsView("ERROR", "");
 #elif UNITY_ANDROID
-                    ElephantAndroid.ShowSettingsView("ERROR", "");
+                    ElephantAndroid.ShowSettingsViewOnUiThread("ERROR", "");
 #endif
-                
+
                 Debug.Log("Settings Error: " + s);
             });
         }
+
 
         public static void ShowNetworkOfflineDialog()
         {
@@ -282,7 +302,7 @@ namespace ElephantSDK
 #elif UNITY_ANDROID
                 ElephantAndroid.ShowNetworkOfflineDialog("No internet connection.\nPlease check your internet settings.", "Try Again");
 #endif
-                
+
                 Utils.PauseGame();
             }
         }
@@ -376,7 +396,7 @@ namespace ElephantSDK
                 c++;
             }
         }
-        
+
         public class IapSource
         {
             public const string SOURCE_SHOP = "shop";

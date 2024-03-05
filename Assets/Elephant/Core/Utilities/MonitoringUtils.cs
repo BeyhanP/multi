@@ -5,20 +5,25 @@ namespace ElephantSDK
 {
     public class MonitoringUtils
     {
+        public const string KeySessionStart = "sessionStart";
+        public const string KeySessionEnd = "sessionEnd";
         private static MonitoringUtils _instance;
 
         private readonly List<double> _fpsSessionLog;
         private readonly List<int> _currentLevelLog;
 
-        private int _currentLevel;
+        private ElephantLevel _currentLevel;
         private int _memoryUsage;
         private int _memoryUsagePercentage;
+        
+        private float sessionStartBatteryLevel;
+        private float sessionEndBatteryLevel;
 
         private MonitoringUtils()
         {
             _fpsSessionLog = new List<double>();
             _currentLevelLog = new List<int>();
-            _currentLevel = -1;
+            _currentLevel = new ElephantLevel();
             _memoryUsage = 0;
             _memoryUsagePercentage = 0;
         }
@@ -47,7 +52,7 @@ namespace ElephantSDK
 
         public void LogCurrentLevel()
         {
-            _currentLevelLog.Add(_currentLevel);
+            _currentLevelLog.Add(_currentLevel.level);
         }
 
         public List<double> GetFpsSessionLog()
@@ -60,12 +65,19 @@ namespace ElephantSDK
             return _currentLevelLog;
         }
 
-        public void SetCurrentLevel(int currentLevel)
+        public void SetCurrentLevel(int currentLevel, string originalLevelId)
         {
-            _currentLevel = currentLevel;
+            var level = new ElephantLevel
+            {
+                level = currentLevel,
+                original_level = originalLevelId,
+                level_time = Utils.Timestamp()
+            };
+            _currentLevel = level;
+            
         }
 
-        public int GetCurrentLevel()
+        public ElephantLevel GetCurrentLevel()
         {
             return _currentLevel;
         }
@@ -78,6 +90,17 @@ namespace ElephantSDK
         public int GetMemoryUsage()
         {
             return _memoryUsage;
+        }
+
+
+        public float GetSessionStartBatteryLevel()
+        {
+            return sessionStartBatteryLevel;
+        }
+        
+        public float GetSessionEndBatteryLevel()
+        {
+            return sessionEndBatteryLevel;
         }
         
         public void SetMemoryUsagePercentage(int memoryUsagePercentage)

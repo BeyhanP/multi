@@ -181,7 +181,7 @@ namespace ElephantSDK
             }
             catch (Exception e)
             {
-                ElephantCore.Log(e.Message);
+                
             }
 
             return null;
