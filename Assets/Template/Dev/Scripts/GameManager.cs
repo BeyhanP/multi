@@ -56,7 +56,7 @@ public class GameManager : MonoBehaviour
         }
         if (PlayerPrefs.GetInt("LevelPref") != SceneManager.GetActiveScene().buildIndex)
         {
-            SceneManager.LoadScene(PlayerPrefs.GetInt("LevelPref"));
+            //SceneManager.LoadScene(PlayerPrefs.GetInt("LevelPref"));
         }
         Elephant.LevelStarted(PlayerPrefs.GetInt("Level"));
     }
