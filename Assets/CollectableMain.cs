@@ -114,68 +114,80 @@ public class CollectableMain : MonoBehaviour
             }
         }
     }
-    public void GetHit(float _addAmount)
+    public IEnumerator GetHit(float _addAmount)
     {
-        int oldLayerNumber = currentLayerNumber;
-        List<GameObject> _sendPieceLister = new List<GameObject>();
-        _collectableLayersInside[currentLayerNumber]._layerPower -= _addAmount;
-        _collectableLayersInside[currentLayerNumber]._currentThrowAmount += _collectableLayersInside[currentLayerNumber]._throwAmountPerPower * _addAmount;
-        int startLayerNumberer = currentLayerNumber;
-        if (_collectableLayersInside[currentLayerNumber]._layerPower <= 0)
+        for(int a = 0; a < _addAmount; a++)
         {
-            for (int i = 0; i < _collectableLayersInside[currentLayerNumber]._cubesInside.Count; i++)
+            int oldLayerNumber = currentLayerNumber;
+            List<GameObject> _sendPieceLister = new List<GameObject>();
+            _collectableLayersInside[currentLayerNumber]._layerPower -= 1;
+            _collectableLayersInside[currentLayerNumber]._currentThrowAmount += _collectableLayersInside[currentLayerNumber]._throwAmountPerPower * 1;
+            int startLayerNumberer = currentLayerNumber;
+            if (_collectableLayersInside[currentLayerNumber]._layerPower <= 0)
             {
-                if (_collectableLayersInside[currentLayerNumber]._cubesInside[i].GetComponent<Rigidbody>() == null)
+                _collectableLayersInside[currentLayerNumber]._layerPower = 0;
+                for (int i = 0; i < _collectableLayersInside[currentLayerNumber]._cubesInside.Count; i++)
                 {
-                    _collectableLayersInside[currentLayerNumber]._cubesInside[i].transform.DOComplete();
-                    _collectableLayersInside[currentLayerNumber]._cubesInside[i].transform.DOKill();
-                    _collectableLayersInside[currentLayerNumber]._cubesInside[i].AddComponent<Rigidbody>().AddExplosionForce(explodeForce, new Vector3(transform.position.x, _collectableLayersInside[currentLayerNumber]._cubesInside[i].transform.position.y, transform.position.z), 100);
-                    _collectableLayersInside[currentLayerNumber]._cubesInside[i].AddComponent<BoxCollider>();
-                    _collectableLayersInside[currentLayerNumber]._cubesInside[i].transform.parent = null;
-                    _sendPieceLister.Add(_collectableLayersInside[currentLayerNumber]._cubesInside[i]);
+                    if (_collectableLayersInside[currentLayerNumber]._cubesInside[i].GetComponent<Rigidbody>() == null)
+                    {
+                        _collectableLayersInside[currentLayerNumber]._cubesInside[i].transform.DOComplete();
+                        _collectableLayersInside[currentLayerNumber]._cubesInside[i].transform.DOKill();
+                        _collectableLayersInside[currentLayerNumber]._cubesInside[i].AddComponent<Rigidbody>().AddExplosionForce(explodeForce, new Vector3(transform.position.x, _collectableLayersInside[currentLayerNumber]._cubesInside[i].transform.position.y, transform.position.z), 100);
+                        _collectableLayersInside[currentLayerNumber]._cubesInside[i].AddComponent<BoxCollider>();
+                        _collectableLayersInside[currentLayerNumber]._cubesInside[i].transform.parent = null;
+                        _sendPieceLister.Add(_collectableLayersInside[currentLayerNumber]._cubesInside[i]);
+                    }
+                }
+                currentLayerNumber++;
+                if (currentLayerNumber >= _collectableLayersInside.Count)
+                {
+                    transform.DOScale(Vector3.zero, .2f);
                 }
             }
-            currentLayerNumber++;
-            if (currentLayerNumber >= _collectableLayersInside.Count)
+            else
             {
-                transform.DOScale(Vector3.zero, .2f);
-            }
-            _collectableLayersInside[currentLayerNumber]._layerPower = 0;
-        }
-        else
-        {
-            for (int i = 0; i < _collectableLayersInside[currentLayerNumber]._currentThrowAmount; i++)
-            {
-                if (_collectableLayersInside[currentLayerNumber]._cubesInside[i].GetComponent<Rigidbody>() == null)
+                for (int i = 0; i < _collectableLayersInside[currentLayerNumber]._currentThrowAmount; i++)
                 {
-                    _collectableLayersInside[currentLayerNumber]._cubesInside[i].transform.DOComplete();
-                    _collectableLayersInside[currentLayerNumber]._cubesInside[i].transform.DOKill();
-                    _collectableLayersInside[currentLayerNumber]._cubesInside[i].AddComponent<Rigidbody>().AddExplosionForce(explodeForce, new Vector3(transform.position.x, _collectableLayersInside[currentLayerNumber]._cubesInside[i].transform.position.y, transform.position.z), 100);
-                    _collectableLayersInside[currentLayerNumber]._cubesInside[i].AddComponent<BoxCollider>();
-                    _collectableLayersInside[currentLayerNumber]._cubesInside[i].transform.parent = null;
-                    _sendPieceLister.Add(_collectableLayersInside[currentLayerNumber]._cubesInside[i]);
+                    if (_collectableLayersInside[currentLayerNumber]._cubesInside[i].GetComponent<Rigidbody>() == null)
+                    {
+                        _collectableLayersInside[currentLayerNumber]._cubesInside[i].transform.DOComplete();
+                        _collectableLayersInside[currentLayerNumber]._cubesInside[i].transform.DOKill();
+                        _collectableLayersInside[currentLayerNumber]._cubesInside[i].AddComponent<Rigidbody>().AddExplosionForce(explodeForce, new Vector3(transform.position.x, _collectableLayersInside[currentLayerNumber]._cubesInside[i].transform.position.y, transform.position.z), 100);
+                        _collectableLayersInside[currentLayerNumber]._cubesInside[i].AddComponent<BoxCollider>();
+                        _collectableLayersInside[currentLayerNumber]._cubesInside[i].transform.parent = null;
+                        _sendPieceLister.Add(_collectableLayersInside[currentLayerNumber]._cubesInside[i]);
+                    }
+                }
+                if (!nonking)
+                {
+                    StartCoroutine(Noink());
+                    _powerText.transform.DOPunchScale(Vector3.one * rotShakeAmount, .25f, 10, 10);
+                    nonking = true;
                 }
             }
-            if (!nonking)
+            if (oldLayerNumber != currentLayerNumber)
             {
-                StartCoroutine(Noink());
-                _powerText.transform.DOPunchScale(Vector3.one * rotShakeAmount, .25f, 10, 10);
-                nonking = true;
+                for (int i = 0; i < _mainParts.Count; i++)
+                {
+                    _mainParts[i].transform.DOLocalMoveY(startYFloat - ((currentLayerNumber) * 0.13f), .2f);
+                }
             }
-        }
-        if (oldLayerNumber != currentLayerNumber)
-        {
-            for(int i = 0; i < _mainParts.Count; i++)
+            for (int i = 0; i < _sendPieceLister.Count; i++)
             {
-                _mainParts[i].transform.DOLocalMoveY(startYFloat - ((currentLayerNumber)* 0.13f),.2f);
+                FindObjectOfType<PlayerMain>().AddPower(_collectableLayersInside[startLayerNumberer]._singlePiecePowerAmount);
             }
+            StartCoroutine(SendPieces(_sendPieceLister, _collectableLayersInside[startLayerNumberer]._singlePiecePowerAmount));
+            for (int i = 0; i < _collectableLayersInside.Count; i++)
+            {
+                if (_collectableLayersInside[i]._layerPower <= 0)
+                {
+                    _collectableLayersInside[i]._layerPower = 0;
+                }
+            }
+            SetPowerTexter();
+            yield return null;
         }
-        for(int i = 0; i < _sendPieceLister.Count; i++)
-        {
-            FindObjectOfType<PlayerMain>().AddPower(_collectableLayersInside[startLayerNumberer]._singlePiecePowerAmount);
-        }
-        StartCoroutine(SendPieces(_sendPieceLister, _collectableLayersInside[startLayerNumberer]._singlePiecePowerAmount)); 
-        SetPowerTexter();
+        
     }
     private IEnumerator Noink()
     {
@@ -215,7 +227,7 @@ public class CollectableMain : MonoBehaviour
     {
         if (other.CompareTag("Bullet"))
         {
-            GetHit(other.GetComponent<BulletScript>().bulletPower);
+            StartCoroutine(GetHit(other.GetComponent<BulletScript>().bulletPower));
             other.GetComponent<BulletScript>().BulletDeActivate(true,true,GetComponent<Ricochetable>());
         }
     }
