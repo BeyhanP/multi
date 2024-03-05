@@ -32,10 +32,6 @@ public class CollectableMain : MonoBehaviour
     [SerializeField]float startYFloat;
     [SerializeField] TextMeshPro _powerText;
     [SerializeField] float rotShakeAmount;
-    private void Awake()
-    {
-       
-    }
     private void Start()
     {
         collectableAmount = 12;
@@ -144,6 +140,7 @@ public class CollectableMain : MonoBehaviour
             {
                 transform.DOScale(Vector3.zero, .2f);
             }
+            _collectableLayersInside[currentLayerNumber]._layerPower = 0;
         }
         else
         {
