@@ -19,7 +19,7 @@ public class NewShootingScript : MonoBehaviour
     public List<ShowBullet> bulletsInside;
 
 
-
+    public float waitTime;
     int partCount;
     [SerializeField] List<RevolverParts> _partsInside = new List<RevolverParts>();
     [SerializeField] List<RevolverParts> _unlockedParts = new List<RevolverParts>();
@@ -27,7 +27,7 @@ public class NewShootingScript : MonoBehaviour
 
     public Skills skillToPut;
     List<int> fullData = new List<int>();
-
+    [SerializeField] List<Transform> shootPositions = new List<Transform>();
     [SerializeField] private List<GameObject> _weaponsInside = new List<GameObject>();
 
 
@@ -38,6 +38,7 @@ public class NewShootingScript : MonoBehaviour
     private bool spreadShotUnlocked;
     bool canShoot;
     [SerializeField] List<ParticleSystem> muzzleParticles = new List<ParticleSystem>();
+    int rotAmounter;
     public static NewShootingScript instance;
     private void Awake()
     {
@@ -337,7 +338,17 @@ public class NewShootingScript : MonoBehaviour
         yield return new WaitForSeconds(.5f / fireRate);
         Debug.Log(GetActiveBullets().Count +"ActiveCounter");
         Shoot(GetActivePower(), GetActiveSkills(),GetActiveBullets());
-        yield return new WaitForSeconds(.5f / fireRate);
+        rotAmounter++;
+        if (rotAmounter < 5)
+        {
+
+            yield return new WaitForSeconds(.5f / fireRate);
+        }
+        else
+        {
+            rotAmounter = 0;
+            yield return new WaitForSeconds(waitTime);
+        }
         StartCoroutine(RotateToNext());
     }
     public List<Skills> GetActiveSkills()
@@ -542,56 +553,43 @@ public class NewShootingScript : MonoBehaviour
     {
         if (canShoot && GameManager.instance.started)
         {
-            int shootAmount = 1;
-            List<Skills> _skillers = new List<Skills>();
-            for(int i = 0; i < _bulletsToUser.Count; i++)
+            for(int p= 0; p< shootPositions.Count; p++)
             {
-                if (_bulletsToUser[i].skillBullet)
+                shootPosition = shootPositions[p];
+                int shootAmount = 1;
+                List<Skills> _skillers = new List<Skills>();
+                for (int i = 0; i < _bulletsToUser.Count; i++)
                 {
-                    _skillers.Add(_bulletsToUser[i].skill);
+                    if (_bulletsToUser[i].skillBullet)
+                    {
+                        _skillers.Add(_bulletsToUser[i].skill);
+                    }
                 }
-            }
 
-            for(int i = 0; i < _bulletsToUser.Count; i++)
-            {
-                if (_bulletsToUser[i].skill == Skills.Multi)
+                for (int i = 0; i < _bulletsToUser.Count; i++)
                 {
-                    int level = _bulletsToUser[i]._skillLevel;
-                    shootAmount = level + 2;
+                    if (_bulletsToUser[i].skill == Skills.Multi)
+                    {
+                        int level = _bulletsToUser[i]._skillLevel;
+                        shootAmount = level + 2;
+                    }
                 }
-            }
-            /*
-            if (_skillers.Contains(Skills.Multi))
-            {
-                int indexNumber = _skillers.IndexOf(Skills.Multi);
-                int multiLeveler = _bulletsToUser[indexNumber]._skillLevel + 2;
-                Debug.Log("GotMultier"+multiLeveler+ "SkilLeveler"+ _bulletsToUser[indexNumber]._skillLevel);
-                shootAmount = multiLeveler;
-            }
-            */
-            if (shootAmount == 0)
-            {
-                shootAmount = 1;
-            }
-            GetComponent<Animator>().Play("ShootAnimation");
-            Taptic.Light();
-            if (shootAmount == 1)
-            {
-                GameObject bullet = ObjectPooler.instance.SpawnFromPool("Bullet", shootPosition.position, Quaternion.identity);
-                bullet.transform.eulerAngles = new Vector3(0, 0, 0);
-                for (int i = 0; i < muzzleParticles.Count; i++)
+                /*
+                if (_skillers.Contains(Skills.Multi))
                 {
-                    muzzleParticles[i].Play();
+                    int indexNumber = _skillers.IndexOf(Skills.Multi);
+                    int multiLeveler = _bulletsToUser[indexNumber]._skillLevel + 2;
+                    Debug.Log("GotMultier"+multiLeveler+ "SkilLeveler"+ _bulletsToUser[indexNumber]._skillLevel);
+                    shootAmount = multiLeveler;
                 }
-                bullet.GetComponent<BulletScript>().ActivateBullet(shootPower, _skillsInside, _bulletsToUser);
-                bullet.GetComponent<BulletScript>().zMax = currentRange + transform.position.z;
-                bullet.transform.position = shootPosition.position;
-                Vector3 shootVector = Vector3.forward * shootForce;
-                bullet.GetComponent<Rigidbody>().AddForce(shootVector);
-            }
-            else if (shootAmount == 2)
-            {
-                for (int s = 0; s < 2; s++)
+                */
+                if (shootAmount == 0)
+                {
+                    shootAmount = 1;
+                }
+                GetComponent<Animator>().Play("ShootAnimation");
+                Taptic.Light();
+                if (shootAmount == 1)
                 {
                     GameObject bullet = ObjectPooler.instance.SpawnFromPool("Bullet", shootPosition.position, Quaternion.identity);
                     bullet.transform.eulerAngles = new Vector3(0, 0, 0);
@@ -603,127 +601,145 @@ public class NewShootingScript : MonoBehaviour
                     bullet.GetComponent<BulletScript>().zMax = currentRange + transform.position.z;
                     bullet.transform.position = shootPosition.position;
                     Vector3 shootVector = Vector3.forward * shootForce;
-                    if (s == 0)
-                    {
-                        shootVector.x = -.05f * shootForce;
-                        bullet.transform.eulerAngles = new Vector3(0, -3, 0);
-                    }
-                    else if (s == 1)
-                    {
-                        shootVector.x = +.05f * shootForce;
-                        bullet.transform.eulerAngles = new Vector3(0, +3, 0);
-                    }
                     bullet.GetComponent<Rigidbody>().AddForce(shootVector);
                 }
-            }
-            else if (shootAmount == 3)
-            {
-                for (int s = 0; s < 3; s++)
+                else if (shootAmount == 2)
                 {
-                    GameObject bullet = ObjectPooler.instance.SpawnFromPool("Bullet", shootPosition.position, Quaternion.identity);
-                    bullet.transform.eulerAngles = new Vector3(0, 0, 0);
-                    for (int i = 0; i < muzzleParticles.Count; i++)
+                    for (int s = 0; s < 2; s++)
                     {
-                        muzzleParticles[i].Play();
-                    }
-                    bullet.GetComponent<BulletScript>().ActivateBullet(shootPower, _skillsInside, _bulletsToUser);
-                    bullet.GetComponent<BulletScript>().zMax = currentRange + transform.position.z;
-                    bullet.transform.position = shootPosition.position;
-                    Vector3 shootVector = Vector3.forward * shootForce;
-                    if (s == 0)
-                    {
-                        shootVector.x = -.05f * shootForce;
-                        bullet.transform.eulerAngles = new Vector3(0, -3, 0);
-                    }
-                    else if (s == 1)
-                    {
-                        shootVector.x = +.05f * shootForce;
-                        bullet.transform.eulerAngles = new Vector3(0, +3, 0);
-                    }
-                    else if (s == 3)
-                    {
+                        GameObject bullet = ObjectPooler.instance.SpawnFromPool("Bullet", shootPosition.position, Quaternion.identity);
                         bullet.transform.eulerAngles = new Vector3(0, 0, 0);
+                        for (int i = 0; i < muzzleParticles.Count; i++)
+                        {
+                            muzzleParticles[i].Play();
+                        }
+                        bullet.GetComponent<BulletScript>().ActivateBullet(shootPower, _skillsInside, _bulletsToUser);
+                        bullet.GetComponent<BulletScript>().zMax = currentRange + transform.position.z;
+                        bullet.transform.position = shootPosition.position;
+                        Vector3 shootVector = Vector3.forward * shootForce;
+                        if (s == 0)
+                        {
+                            shootVector.x = -.05f * shootForce;
+                            bullet.transform.eulerAngles = new Vector3(0, -3, 0);
+                        }
+                        else if (s == 1)
+                        {
+                            shootVector.x = +.05f * shootForce;
+                            bullet.transform.eulerAngles = new Vector3(0, +3, 0);
+                        }
+                        bullet.GetComponent<Rigidbody>().AddForce(shootVector);
                     }
-                    bullet.GetComponent<Rigidbody>().AddForce(shootVector);
                 }
-            }
-            else if (shootAmount == 4)
-            {
-                for (int s = 0; s < 4; s++)
+                else if (shootAmount == 3)
                 {
-                    GameObject bullet = ObjectPooler.instance.SpawnFromPool("Bullet", shootPosition.position, Quaternion.identity);
-                    bullet.transform.eulerAngles = new Vector3(0, 0, 0);
-                    for (int i = 0; i < muzzleParticles.Count; i++)
+                    for (int s = 0; s < 3; s++)
                     {
-                        muzzleParticles[i].Play();
-                    }
-                    bullet.GetComponent<BulletScript>().ActivateBullet(shootPower, _skillsInside, _bulletsToUser);
-                    bullet.GetComponent<BulletScript>().zMax = currentRange + transform.position.z;
-                    bullet.transform.position = shootPosition.position;
-                    Vector3 shootVector = Vector3.forward * shootForce;
-                    if (s == 0)
-                    {
-                        shootVector.x = -.05f * shootForce;
-                        bullet.transform.eulerAngles = new Vector3(0, -3, 0);
-                    }
-                    else if (s == 1)
-                    {
-                        shootVector.x = +.05f * shootForce;
-                        bullet.transform.eulerAngles = new Vector3(0, +3, 0);
-                    }
-                    else if (s == 2)
-                    {
-                        shootVector.x = +.1f * shootForce;
-                        bullet.transform.eulerAngles = new Vector3(0, +6, 0);
-                    }
-                    else if (s == 4)
-                    {
-                        shootVector.x = -.1f * shootForce;
-                        bullet.transform.eulerAngles = new Vector3(0, -6, 0);
-                    }
-                    bullet.GetComponent<Rigidbody>().AddForce(shootVector);
-                }
-            }
-            else
-            {
-                for (int s = 0; s < 5; s++)
-                {
-                    GameObject bullet = ObjectPooler.instance.SpawnFromPool("Bullet", shootPosition.position, Quaternion.identity);
-                    bullet.transform.eulerAngles = new Vector3(0, 0, 0);
-                    for (int i = 0; i < muzzleParticles.Count; i++)
-                    {
-                        muzzleParticles[i].Play();
-                    }
-                    bullet.GetComponent<BulletScript>().ActivateBullet(shootPower, _skillsInside, _bulletsToUser);
-                    bullet.GetComponent<BulletScript>().zMax = currentRange + transform.position.z;
-                    bullet.transform.position = shootPosition.position;
-                    Vector3 shootVector = Vector3.forward * shootForce;
-                    if (s == 0)
-                    {
-                        shootVector.x = -.05f * shootForce;
-                        bullet.transform.eulerAngles = new Vector3(0, -3, 0);
-                    }
-                    else if (s == 1)
-                    {
-                        shootVector.x = +.05f * shootForce;
-                        bullet.transform.eulerAngles = new Vector3(0, +3, 0);
-                    }
-                    else if (s == 2)
-                    {
-                        shootVector.x = +.1f * shootForce;
-                        bullet.transform.eulerAngles = new Vector3(0, +6, 0);
-                    }
-                    else if (s == 4)
-                    {
-                        shootVector.x = -.1f * shootForce;
-                        bullet.transform.eulerAngles = new Vector3(0, -6, 0);
-                    }
-                    else if (s == 5)
-                    {
+                        GameObject bullet = ObjectPooler.instance.SpawnFromPool("Bullet", shootPosition.position, Quaternion.identity);
                         bullet.transform.eulerAngles = new Vector3(0, 0, 0);
+                        for (int i = 0; i < muzzleParticles.Count; i++)
+                        {
+                            muzzleParticles[i].Play();
+                        }
+                        bullet.GetComponent<BulletScript>().ActivateBullet(shootPower, _skillsInside, _bulletsToUser);
+                        bullet.GetComponent<BulletScript>().zMax = currentRange + transform.position.z;
+                        bullet.transform.position = shootPosition.position;
+                        Vector3 shootVector = Vector3.forward * shootForce;
+                        if (s == 0)
+                        {
+                            shootVector.x = -.05f * shootForce;
+                            bullet.transform.eulerAngles = new Vector3(0, -3, 0);
+                        }
+                        else if (s == 1)
+                        {
+                            shootVector.x = +.05f * shootForce;
+                            bullet.transform.eulerAngles = new Vector3(0, +3, 0);
+                        }
+                        else if (s == 3)
+                        {
+                            bullet.transform.eulerAngles = new Vector3(0, 0, 0);
+                        }
+                        bullet.GetComponent<Rigidbody>().AddForce(shootVector);
                     }
-                    bullet.GetComponent<Rigidbody>().AddForce(shootVector);
                 }
+                else if (shootAmount == 4)
+                {
+                    for (int s = 0; s < 4; s++)
+                    {
+                        GameObject bullet = ObjectPooler.instance.SpawnFromPool("Bullet", shootPosition.position, Quaternion.identity);
+                        bullet.transform.eulerAngles = new Vector3(0, 0, 0);
+                        for (int i = 0; i < muzzleParticles.Count; i++)
+                        {
+                            muzzleParticles[i].Play();
+                        }
+                        bullet.GetComponent<BulletScript>().ActivateBullet(shootPower, _skillsInside, _bulletsToUser);
+                        bullet.GetComponent<BulletScript>().zMax = currentRange + transform.position.z;
+                        bullet.transform.position = shootPosition.position;
+                        Vector3 shootVector = Vector3.forward * shootForce;
+                        if (s == 0)
+                        {
+                            shootVector.x = -.05f * shootForce;
+                            bullet.transform.eulerAngles = new Vector3(0, -3, 0);
+                        }
+                        else if (s == 1)
+                        {
+                            shootVector.x = +.05f * shootForce;
+                            bullet.transform.eulerAngles = new Vector3(0, +3, 0);
+                        }
+                        else if (s == 2)
+                        {
+                            shootVector.x = +.1f * shootForce;
+                            bullet.transform.eulerAngles = new Vector3(0, +6, 0);
+                        }
+                        else if (s == 4)
+                        {
+                            shootVector.x = -.1f * shootForce;
+                            bullet.transform.eulerAngles = new Vector3(0, -6, 0);
+                        }
+                        bullet.GetComponent<Rigidbody>().AddForce(shootVector);
+                    }
+                }
+                else
+                {
+                    for (int s = 0; s < 5; s++)
+                    {
+                        GameObject bullet = ObjectPooler.instance.SpawnFromPool("Bullet", shootPosition.position, Quaternion.identity);
+                        bullet.transform.eulerAngles = new Vector3(0, 0, 0);
+                        for (int i = 0; i < muzzleParticles.Count; i++)
+                        {
+                            muzzleParticles[i].Play();
+                        }
+                        bullet.GetComponent<BulletScript>().ActivateBullet(shootPower, _skillsInside, _bulletsToUser);
+                        bullet.GetComponent<BulletScript>().zMax = currentRange + transform.position.z;
+                        bullet.transform.position = shootPosition.position;
+                        Vector3 shootVector = Vector3.forward * shootForce;
+                        if (s == 0)
+                        {
+                            shootVector.x = -.05f * shootForce;
+                            bullet.transform.eulerAngles = new Vector3(0, -3, 0);
+                        }
+                        else if (s == 1)
+                        {
+                            shootVector.x = +.05f * shootForce;
+                            bullet.transform.eulerAngles = new Vector3(0, +3, 0);
+                        }
+                        else if (s == 2)
+                        {
+                            shootVector.x = +.1f * shootForce;
+                            bullet.transform.eulerAngles = new Vector3(0, +6, 0);
+                        }
+                        else if (s == 4)
+                        {
+                            shootVector.x = -.1f * shootForce;
+                            bullet.transform.eulerAngles = new Vector3(0, -6, 0);
+                        }
+                        else if (s == 5)
+                        {
+                            bullet.transform.eulerAngles = new Vector3(0, 0, 0);
+                        }
+                        bullet.GetComponent<Rigidbody>().AddForce(shootVector);
+                    }
+                }
+
             }
 
         }
